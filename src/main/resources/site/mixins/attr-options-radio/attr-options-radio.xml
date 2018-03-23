@@ -1,0 +1,26 @@
+<mixin>
+  <display-name>Attr: Options (radio)</display-name>
+  <items>
+    <item-set name="options">
+      <label>Option</label>
+      <items>
+        <input name="optionValue" type="TextLine">
+          <label>Value</label>
+          <occurrences minimum="1" maximum="1"/>
+          <help-text>[Required] The value submitted if this option is selected</help-text>
+        </input>
+        <input name="optionText" type="TextLine">
+          <label>Display text</label>
+          <occurrences minimum="1" maximum="1"/>
+          <help-text>[Required] The text displayed to the user next to the radio button</help-text>
+        </input>
+        <input name="optionChecked" type="CheckBox">
+          <label>Checked?</label>
+          <occurrences minimum="0" maximum="1"/>
+          <help-text>[Optional] Set whether this option should be pre-selected. Note that you have to pay attention to only pre-select one option, or the results can be a bit random.</help-text>
+        </input>
+      </items>
+      <occurrences minimum="2" maximum="0"/>
+    </item-set>
+  </items>
+</mixin>

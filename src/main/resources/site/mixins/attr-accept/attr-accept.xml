@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Accept</display-name>
+  <items>
+    <input name="accept" type="TextLine">
+      <label>Accepted file types</label>
+      <occurrences minimum="0" maximum="0"/>
+      <config/>
+      <help-text>[Optional] Add a list of filetypes to accept. 'image/*', 'audio/*', 'video/*' or '.pdf' are some options. The full list of accepted options can be found here: www.iana.org/assignments/media-types/media-types.xhtml</help-text>
+    </input>
+  </items>
+</mixin>

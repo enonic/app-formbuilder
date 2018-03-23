@@ -1,0 +1,16 @@
+<mixin>
+  <display-name>Attr: State (checkbox)</display-name>
+  <items>
+    <input name="state" type="RadioButton">
+      <label>Initial state</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config>
+        <option value="unchecked">Unchecked</option>
+        <option value="checked">Checked</option>
+        <option value="indeterminate">Indeterminate</option>
+      </config>
+      <default>unchecked</default>
+      <help-text>[Optional] Set the initial state of the checkbox. Default value is 'Unchecked', while it can also be set to 'Checked' or 'Indeterminate'. (An inbetween-option, to force the user to select or unselect.)</help-text>
+    </input>
+  </items>
+</mixin>

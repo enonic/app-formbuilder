@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Name</display-name>
+  <items>
+    <input name="name" type="TextLine">
+      <label>Name</label>
+      <occurrences minimum="0" maximum="1"/>
+      <help-text>[Optional] Use to customize the name attribute of the input field. This is used to identify the field, e.g. in the receiving system. Default behaviour is that the id of the input field is used, though with dashes (-) replaced with underscores (_).</help-text>
+      <config/>
+    </input>
+  </items>
+</mixin>

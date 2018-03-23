@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+  <config>
+    <field-set name="formbuilder-settings">
+      <label>Formbuilder config</label>
+      <items>
+        <input type="TextLine" name="emailFrom">
+          <label>E-mail FROM address</label>
+          <occurrences minimum="1" maximum="1"/>
+          <config>
+            <regexp>^\S+@\S+$</regexp><!-- allow any amount of characters in front and behind the @, disallow preceding or trailing whitespace -->
+          </config>
+          <help-text>Default adress appearing in the e-mail's "from" line, example: "Noreply" &lt;noreply@example.com&gt; …or just an e-mail: noreply@example.com.</help-text>
+        </input>
+        <input type="RadioButton" name="formbuilder-style">
+          <label>Global form style</label>
+          <occurrences minimum="1" maximum="1"/>
+          <config>
+            <option value="default">Browser default</option>
+            <option value="xp-formbuilder">XP Formbuilder</option>
+            <option value="bootstrap">Twitter Bootstrap</option>
+          </config>
+          <default>bootstrap</default>
+          <help-text>Select global styling for forms generated with the formbuilder app. If you set styling in the form, that will override this setting. If "Browser default" is used, no style sheet is loaded for the form application, and you have full control over the form styling. "Twitter Bootstrap" currently uses v.3.3.5. "XP Formbuilder" is an extra example.</help-text>
+        </input>
+      </items>
+    </field-set>
+    <field-set name="recaptcha">
+        <label>reCAPTCHA</label>
+        <items>
+            <input type="TextLine" name="recaptchaSecretKey">
+                <label>Secret Key for reCAPTCHA</label>
+                <occurrences minimum="0" maximum="1"/>
+            </input>
+            <input type="TextLine" name="recaptchaSiteKey">
+                <label>Site Key for reCAPTCHA</label>
+                <occurrences minimum="0" maximum="1"/>
+            </input>
+        </items>
+    </field-set>
+  </config>
+</site>

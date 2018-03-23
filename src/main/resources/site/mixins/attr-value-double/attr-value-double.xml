@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Value (double)</display-name>
+  <items>
+    <input name="value" type="Double">
+      <label>Default value</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config/>
+      <help-text>[Optional] Set the pre-defined/default value. Useful to set the normal/average value the user is assumed to choose.</help-text>
+    </input>
+  </items>
+</mixin>

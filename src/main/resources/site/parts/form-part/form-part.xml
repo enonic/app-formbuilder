@@ -1,0 +1,18 @@
+<part>
+  <display-name>Form view</display-name>
+  <config>
+    <field-set name="form">
+      <label>Form</label>
+      <items>
+        <input type="ContentSelector" name="form">
+          <label>Add form</label>
+          <occurrences minimum="0" maximum="1"/>
+          <config>
+            <relationship-type>system:reference</relationship-type>
+            <allow-content-type>no.vegard.it.xp.formbuilder:form</allow-content-type>
+          </config>
+        </input>
+      </items>
+    </field-set>
+  </config>
+</part>

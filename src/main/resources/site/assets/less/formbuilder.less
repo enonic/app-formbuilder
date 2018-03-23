@@ -1,0 +1,263 @@
+/* COLORS */
+@charcoal: #333;
+@white: #fff;
+@lightGrey: #ddd;
+@darkGrey: #999;
+
+/* COLOR ASSIGNMENTS */
+@textColor: @charcoal;
+@foregroundColor: @white;
+@inputBackgroundColor: darken(@foregroundColor, 3%);
+@borderColor: darken(@inputBackgroundColor, 20%);
+@shadowColor: @darkGrey;
+@buttonColor: @inputBackgroundColor;
+
+/* PADDINGS AND MARGINS */
+@inputPaddingHorizontal: 10px;
+@inputPaddingVertical: 10px;
+@labelMarginBottom: 20px;
+@radioButtonMarginRight: 20px;
+
+/* BORDERS AND BOX-SHADOWS */
+@borderWidth: 1px;
+@defaultBorderRadius: 5px;
+
+/* SIZES */
+@inputFontSize: 16px;
+@inputSize: 40px;
+
+/* FONTS */
+@inputFontFamily: Arial, Helvetica, sans-serif;
+
+/* FORM STYLING */
+
+form.xp-formbuilder-form {
+  overflow: visible;
+
+  &.xp-submitting {
+    &, * {
+      cursor: progress;
+    }
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: @labelMarginBottom;
+    cursor: pointer;
+
+    .label-text {
+      font-size: 1.5em;
+    }
+
+    &:hover {
+      input:not(:focus), &.checkbox-label {
+        border-color: darken(@borderColor, 10%);
+        background-color: darken(@buttonColor, 5%);
+      }
+    }
+
+    &.checkbox-label {
+      display: block;
+      position: relative;
+      width: calc(100% - 17px);
+      height: @inputSize;
+      line-height: @inputSize;
+      font-size: 16px;
+      border: @borderWidth solid @borderColor;
+      border-radius: @defaultBorderRadius;
+      background-color: @buttonColor;
+      color: transparent;
+      padding-left: 15px;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+
+      &:has(input[type="checkbox"]:focus) {
+        background-color: @white;
+      }
+
+      .checkbox-text {
+        font-size: @inputFontSize;
+        font-family: @inputFontFamily;
+        font-weight: normal;
+        color: @textColor;
+        left: 70px;
+        vertical-align: top;
+      }
+
+      .checkmark {
+        padding: 1px 3px;
+        margin-right: 5px;
+        border: @borderWidth solid darken(@borderColor, 10%);
+        border-radius: @defaultBorderRadius;
+      }
+
+      input[type="checkbox"] {
+        border: 0;
+        background-color: transparent;
+        width: 0;
+        height: 0;
+        margin: 0;
+        opacity: 0;
+
+        &:checked + .checkmark {
+          color: @textColor;
+        }
+
+        &:indeterminate + .checkmark {
+          font-size: 0;
+
+          &:before {
+            content: "-";
+            color: @textColor;
+            font-size: @inputSize;
+            line-height: (@inputSize - 6px);
+            display: inline-block;
+            width: 24px;
+          }
+        }
+
+        &:focus {
+          & + .checkmark {
+            background-color: @white;
+          }
+        }
+      }
+    }
+  }
+
+  .range-input-group {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .radio-option {
+    font-size: @inputFontSize;
+    font-family: @inputFontFamily;
+    font-weight: normal;
+  }
+
+  input {
+    @totalPaddingHorizontal: (2 * @inputPaddingHorizontal);
+    @totalBorderWidth: (2 * @borderWidth);
+    display: block;
+    width: calc(100% - @totalPaddingHorizontal - @totalBorderWidth);
+    padding: @inputPaddingVertical @inputPaddingHorizontal;
+    border-radius: @defaultBorderRadius;
+    border: @borderWidth solid @borderColor;
+    background-color: @inputBackgroundColor;
+    font-size: @inputFontSize;
+    font-family: @inputFontFamily;
+
+    &:focus {
+      background-color: @white;
+    }
+
+    &::-webkit-input-placeholder,
+    &::-moz-input-placeholder,
+    &::-ms-input-placeholder,
+    &::input-placeholder {
+      /* TODO: Style placeholder */
+    }
+
+    &[type="radio"] {
+      display: inline-block;
+      margin-right: @radioButtonMarginRight;
+      width: initial;
+      cursor: pointer;
+    }
+
+    &[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    &[type="search"] {
+      width: 100%;
+    }
+
+    /*&[type="color"] {
+      background-color: initial;
+    }*/
+
+    &[type="range"] {
+      background-color: initial;
+      @sliderTrackHeight: 4px;
+      @sliderButtonDiameter: 20px;
+
+      -webkit-appearance: none;
+      width: initial;
+      flex-grow: 9;
+      border: 0;
+      padding: (((@inputPaddingVertical * 2) - @sliderTrackHeight) / 2) 0;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        border: 1px solid @borderColor;
+        width: @sliderButtonDiameter;
+        height: @sliderButtonDiameter;
+        border-radius: (@sliderButtonDiameter / 2);
+        background: @borderColor;
+        cursor: pointer;
+        margin-top: (-(@inputPaddingVertical - @borderWidth));
+        box-shadow: 1px 1px 1px @shadowColor, 0px 0px 1px @shadowColor;
+      }
+
+      &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: @sliderTrackHeight;
+        border-radius: ((@sliderTrackHeight + (@borderWidth * 2)) / 2);
+        border: @borderWidth solid @borderColor;
+        background-color: @borderColor;
+        cursor: pointer;
+      }
+
+      &:focus {
+        &::-webkit-slider-thumb {
+          box-shadow: 1px 1px 3px @shadowColor, 0px 0px 3px blue;
+          background: @foregroundColor;
+        }
+      }
+
+      &:active {
+        &::-webkit-slider-thumb {
+          background-color: darken(@foregroundColor, 10%);
+        }
+      }
+
+      &:hover {
+        background-color: initial;
+      }
+
+      & + input {
+        margin-left: 15px;
+        width: initial;
+      }
+
+    }
+
+    &[type="submit"] {
+      cursor: pointer;
+
+      &[disabled] {
+        cursor: progress;
+      }
+    }
+  }
+
+  select {
+    @totalPaddingHorizontal: (2 * @inputPaddingHorizontal);
+    @totalBorderWidth: (2 * @borderWidth);
+    display: block;
+    width: calc(100% - @totalPaddingHorizontal - @totalBorderWidth);
+    padding: @inputPaddingVertical @inputPaddingHorizontal;
+    border-radius: @defaultBorderRadius;
+    border: @borderWidth solid @borderColor;
+    background-color: @inputBackgroundColor;
+    font-size: @inputFontSize;
+    font-family: @inputFontFamily;
+  }
+}

@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Required</display-name>
+  <items>
+    <input name="required" type="CheckBox">
+      <label>Required</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config/>
+      <help-text>[Optional] Set whether the input field is required. If it is, the user will not be able to submit without filling in a value.</help-text>
+    </input>
+  </items>
+</mixin>

@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Max (date)</display-name>
+  <items>
+    <input name="max" type="Date">
+      <label>Maximum date</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config/>
+      <help-text>[Optional] Limit what the maximum date set can be.</help-text>
+    </input>
+  </items>
+</mixin>

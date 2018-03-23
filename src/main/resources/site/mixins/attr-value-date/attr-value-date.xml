@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Value (date)</display-name>
+  <items>
+    <input name="value" type="Date">
+      <label>Default value</label>
+      <occurrences minimum="0" maximum="1"/>
+      <config/>
+      <help-text>[Optional] Set the pre-defined/default date. Use this if the user normally will be selecting one specific value or as a good starting point for selecting the date.</help-text>
+    </input>
+  </items>
+</mixin>

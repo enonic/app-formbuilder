@@ -1,0 +1,11 @@
+<mixin>
+  <display-name>Attr: Label</display-name>
+  <items>
+    <input name="label" type="TextLine">
+      <label>Label</label>
+      <occurrences minimum="1" maximum="1"/>
+      <config/>
+      <help-text>[Required] Add a label text that is displayed above the input field. This should be explanatory enough that you should understand what to enter in the field without any other explanation.</help-text>
+    </input>
+  </items>
+</mixin>
