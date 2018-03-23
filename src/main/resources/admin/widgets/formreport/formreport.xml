@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget>
+  <display-name>Form report</display-name>
+  <interfaces>
+    <interface>com.enonic.xp.content-manager.context-widget</interface>
+  </interfaces>
+</widget>
