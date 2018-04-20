@@ -10,12 +10,12 @@ buildscript {
 
     dependencies {
         classpath 'com.enonic.xp:gradle-plugin:6.9.0'
-        classpath 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
+        //classpath 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
     }
 }
 
 
-apply plugin: 'lesscss'
+//apply plugin: 'lesscss'
 apply plugin: 'com.enonic.xp.app'
 
 version = '1.3.2'
@@ -27,13 +27,13 @@ app {
     vendorUrl = 'http://www.github.com/it-vegard'
 }
 
-lessc {
-    sourceDir 'src/main/resources/site/assets/less'
-    include '*.less'
-    destinationDir = 'build/resources/main/site/assets/css'
-    options.strictMath = true
-    encoding = "utf-8"
-}
+//lessc {
+//    sourceDir 'src/main/resources/site/assets/less'
+//    include '*.less'
+//    destinationDir = 'build/resources/main/site/assets/css'
+//    options.strictMath = true
+//    encoding = "utf-8"
+//}
 
 ext {
     xpVersion = '6.13.0'
@@ -62,4 +62,4 @@ repositories {
     }
 }
 
-jar.dependsOn += lessc
+//jar.dependsOn += lessc
