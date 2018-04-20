@@ -40,6 +40,7 @@
             <allow-content-type>input-textarea</allow-content-type>
             <allow-content-type>input-time</allow-content-type>
             <allow-content-type>input-url</allow-content-type>
+            <!-- TODO: filter på site -->
           </config>
           <help-text>Add the input fields to display in your form. These must be created before they can be added, but you can save the form and return to add them later.</help-text>
         </input>
@@ -84,9 +85,9 @@
       <label>E-mail with form data</label>
       <items>
         <input type="TextLine" name="emailSubscribers">
-          <label>Send CC to e-mail</label>
+          <label>Send to e-mail address</label>
           <occurrences minimum="0" maximum="0"/>
-          <help-text>Optional. Any e-mail addresses specified here will receive all the raw form response data in an e-mail.</help-text>
+          <help-text>Optional. E-mail addresses specified in these fields will receive all the raw form response data in an e-mail, and with uploaded files as attachments.</help-text>
           <config>
             <regexp>^\S+@\S+$</regexp><!-- allow any amount of characters in front and behind the @, disallow preceding or trailing whitespace -->
           </config>
@@ -185,7 +186,7 @@
           <label>Style</label>
           <occurrences minimum="0" maximum="1"/>
           <config>
-            <option value="default">Browser default</option>
+            <option value="default">Default</option>
             <option value="xp-formbuilder">XP Formbuilder</option>
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>

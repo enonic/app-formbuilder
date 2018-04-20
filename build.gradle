@@ -21,9 +21,9 @@ apply plugin: 'com.enonic.xp.app'
 version = '1.3.2'
 
 app {
-    name = 'no.vegard.it.xp.formbuilder'
+    name = 'com.enonic.app.formbuilder'
     displayName = 'Enonic XP Form Builder'
-    vendorName = 'Vegard Haugstvedt'
+    vendorName = 'Enonic'
     vendorUrl = 'http://www.github.com/it-vegard'
 }
 

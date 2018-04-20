@@ -1,22 +1,22 @@
 var contentLib = require('/lib/xp/content'); // Import the content functions
 var context = require('/lib/xp/context'); // Import the context functions
-var mail = require('/lib/xp/mail'); // Import the context functions
-var node = require('/lib/xp/node'); // Import the node functions
+var mail = require('/lib/xp/mail'); // Import the mail functions
+var nodeLib = require('/lib/xp/node'); // Import the node functions
 var portal = require('/lib/xp/portal'); // Import the portal functions
-var repo = require('/lib/xp/repo'); // Import the node functions
+var repo = require('/lib/xp/repo'); // Import the repo functions
 var util = require('/lib/enonic/util/data'); // Import the enonic util functions
 
 var CheckboxInputMapper = require('/lib/form-builder/mapper/checkbox-input-mapper');
 
 var moment = require('/lib/moment.min.js'); // Import Moment.js
 
+var storeInCmsRepo = false;
+var repoName = storeInCmsRepo ? 'cms-repo' : 'app-formbuilder-repo';
+
 exports.save = function(request, formContent) {
-  /*log.info('exports.save request');
-  log.info(JSON.stringify(request, null, 4));
-  log.info('exports.save formContent');
-  log.info(JSON.stringify(formContent, null, 4));*/
   var formConfig = formContent.data;
   var formData = request.params;
+  formData.formId = formContent._id;
   formData.displayName = formConfig.title || formContent.displayName;
   var responseFolder = getResponseFolder(formConfig);
   return receiveForm(formData, formConfig, responseFolder, request);
@@ -33,7 +33,8 @@ var isSet = function(value) {
 var runInDraft = function(callback) {
   return context.run(
     {
-      branch: 'master'
+      repository: repoName,
+      branch: 'draft'
     },
     callback
   );
@@ -43,12 +44,13 @@ var runInDraft = function(callback) {
 var runAsSu = function(callback) {
   return context.run(
     {
-      branch: 'master',
-        user: {
-          login: 'su',
-          userStore: 'system'
-        }
-      },
+      repository: repoName,
+      branch: 'draft',
+      user: {
+        login: 'su',
+        userStore: 'system'
+      }
+    },
     callback
   );
 }
@@ -92,7 +94,7 @@ var receiveForm = function(formData, formConfig, responseFolder, request) {
       var attachment = attachments[i];
       emailAttachments.push({
         fileName: attachment.displayName,
-        data: runInDraft(function() {
+        data: runAsSu(function() {
           return contentLib.getAttachmentStream({
             key: attachment.id,
             name: attachment.name
@@ -104,7 +106,7 @@ var receiveForm = function(formData, formConfig, responseFolder, request) {
       formData[attachment.inputId].attachments.push({
         id: attachment.id,
         name: attachment.name,
-        url: runInDraft(function() {
+        url: runAsSu(function() {
           return portal.attachmentUrl({
             id: attachment.id,
             download: true
@@ -132,7 +134,7 @@ var saveForm = function(form, responseFolder) {
       displayName: name,
       requireValid: true,
       contentType: 'base:unstructured',
-      branch: 'master',
+      branch: 'draft',
       data: form
     });
   });
@@ -151,14 +153,17 @@ var saveAttachments = function(form, responseFolder) {
 };
 
 var getResponseFolder = function(formConfig) {
+  if (storeInCmsRepo) {
+    try {
+      return formConfig["responseFolder"] ?
+        contentLib.get({key: formConfig["responseFolder"]})._path :
+        portal.getContent()._path;
+    } catch (exception) {
+      log.error("Could not resolve folder to store form responses in.", exception);
+    }
+  } else {
     return '/';
-  /*try {
-    return formConfig["responseFolder"] ?
-      contentLib.get({key: formConfig["responseFolder"]})._path :
-      portal.getContent()._path;
-  } catch (exception) {
-    log.error("Could not resolve folder to store form responses in.", exception);
-}*/
+  }
 };
 
 var getAttachmentFolderOrCreateNew = function(parentFolder) {
@@ -171,7 +176,7 @@ var getAttachmentFolderOrCreateNew = function(parentFolder) {
         draft: true,
         contentType: 'base:folder',
         data: {},
-        branch: 'master'
+        branch: 'draft'
       });
     });
     return attachmentsFolder._path;
@@ -208,7 +213,7 @@ var saveFile = function(file, folder) {
       parentPath: folder,
       mimeType: file.contentType,
       data: stream,
-      branch: 'master'
+      branch: 'draft'
     });
   });
   return {
@@ -238,6 +243,7 @@ var sendEmailToRecipients = function(formData, formConfig, request, emailAttachm
     var inputValue = '';
     var inputName = ''; // used for looking up the input value in formData
 
+    // Use contentLib.get without specifying branch in order to get content from cms-repo and from executed context (either draft or master)
     var inputContent = contentLib.get({ key: _id });
     if (inputContent) {
       displayName = inputContent.displayName;
@@ -282,7 +288,9 @@ var sendEmailToRecipients = function(formData, formConfig, request, emailAttachm
   var subjectFromInput = '';
   if (isSet(formConfig.subjectCheckbox) && formConfig.subjectCheckbox) {
     if (isSet(formConfig.subjectField)) {
-      subjectFromInput = formData[contentLib.get({ key: formConfig["subjectField"]  })._name];
+      subjectFromInput = runAsSu(function () {
+          return formData[contentLib.get({ key: formConfig["subjectField"] })._name];
+      });
     }
   }
   var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData.displayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
