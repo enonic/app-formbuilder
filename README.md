@@ -69,11 +69,11 @@ If you want an easy way to view the responses, a special page template is added 
 ## Development instructions ##
 
 ### Prerequisites ###
-* Install Enonic XP 6.3.0 or above
+* Install Enonic XP 6.13.0 or above
 * Set the XP_HOME variable to point to your Enonic home folder.
 
 ### Installation ###
-* Run "gradlew deploy" to install to a local installation.
+* Run "./gradlew deploy" (UNIX) or "gradlew.bat deploy" to install to a local installation.
 
 ### Install to server ###
-* Run "gradlew build" to build, and then copy the jar-file created under "/build/libs" 
+* Run "./gradlew build" to build, and then copy the jar-file created under "/build/libs" 
