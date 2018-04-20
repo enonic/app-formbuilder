@@ -73,7 +73,7 @@ If you want an easy way to view the responses, a special page template is added 
 * Set the XP_HOME variable to point to your Enonic home folder.
 
 ### Installation ###
-* Run "./gradlew deploy" (UNIX) or "gradlew.bat deploy" to install to a local installation.
+* Run "./gradlew deploy" (UNIX) or "gradlew.bat deploy" (Windows) to install to a local installation.
 
 ### Install to server ###
 * Run "./gradlew build" to build, and then copy the jar-file created under "/build/libs" 
