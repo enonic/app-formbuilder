@@ -1,0 +1,12 @@
+{
+  "menuItems": [
+    {
+      "title": "Guillotine API",
+      "document": "api"
+    },
+    {
+      "title": "Customizing the schema",
+      "document": "custom"
+    }
+  ]
+}

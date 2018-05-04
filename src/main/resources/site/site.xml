@@ -20,7 +20,7 @@
             <option value="xp-formbuilder">XP Formbuilder</option>
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>
-          <default>bootstrap</default>
+          <default>default</default>
           <help-text>Select global styling for forms generated with the formbuilder app. If you set styling in the form, that will override this setting. If "Browser default" is used, no style sheet is loaded for the form application, and you have full control over the form styling. "Twitter Bootstrap" currently uses v.3.3.5. "XP Formbuilder" is an extra example.</help-text>
         </input>
       </items>

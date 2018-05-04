@@ -1,5 +1,5 @@
 <content-type>
-  <display-name>Form (item-set)</display-name>
+  <display-name>Form (option-set)</display-name>
   <super-type>base:structured</super-type>
   <form>
     <field-set name="basic-settings">
@@ -16,10 +16,60 @@
           <help-text>Optional, will be shown below the title and above the form.</help-text>
       </input-->
         <item-set name="inputs">
-          <label>Input fields</label>
+          <label>Input field</label>
           <items>
-            <input name="input" type="ContentSelector">
-                <label>Input content</label>
+              <inline mixin="attr-label"/>
+              <!--inline mixin="attr-title"/-->
+              <inline mixin="attr-placeholder"/>
+              <inline mixin="attr-required"/>
+              <option-set name="input">
+                  <label>Type and config</label>
+                  <expanded>false</expanded>
+                  <occurrences minimum="1" maximum="1"/>
+                  <options minimum="1" maximum="1">
+                    <option name="text">
+                      <label>Text line</label>
+                      <items>
+                          <inline mixin="attr-value"/>
+                      </items>
+                    </option>
+                    <option name="textarea">
+                      <label>Text area</label>
+                      <items>
+                          <inline mixin="attr-value"/>
+                      </items>
+                    </option>
+                    <option name="email">
+                      <label>E-mail</label>
+                    </option>
+                    <option name="checkbox">
+                      <label>Checkbox</label>
+                    </option>
+                    <option name="checkboxes">
+                      <label>Checkboxes group</label>
+                      <items>
+                          <inline mixin="attr-options-radio"/>
+                      </items>
+                    </option>
+                    <option name="radio">
+                      <label>Radio buttons</label>
+                      <items>
+                          <inline mixin="attr-options-radio"/>
+                      </items>
+                    </option>
+                    <option name="select">
+                      <label>Dropdown select</label>
+                      <items>
+                          <inline mixin="attr-options-radio"/>
+                      </items>
+                    </option>
+                    <option name="file">
+                      <label>File</label>
+                    </option>
+                  </options>
+              </option-set>
+            <!--input name="input" type="ContentSelector">
+                <label>Input fields</label>
                 <occurrences minimum="1" maximum="1"/>
                 <config>
                   <relationship-type>system:reference</relationship-type>
@@ -46,11 +96,11 @@
                   <allowPath>${site}/*</allowPath>
                 </config>
                 <help-text>Add the input fields to display in your form. These must be created before they can be added, but you can save the form and return to add them later.</help-text>
-            </input>
-            <input name="required" type="checkbox">
+            </input-->
+            <!--input name="required" type="checkbox">
               <label>Required</label>
               <occurrences minimum="0" maximum="1"/>
-            </input>
+          </input-->
           </items>
           <occurrences minimum="1" maximum="0"/>
         </item-set>

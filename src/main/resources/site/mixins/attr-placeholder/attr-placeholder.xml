@@ -2,7 +2,7 @@
   <display-name>Attr: Placeholder</display-name>
   <items>
     <input name="placeholder" type="TextLine">
-      <label>Placeholder</label>
+      <label>Placeholder help text</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Add a helpful text to give instructions on what to type into an input field. This is placed as a grayed out text in the input field, and will disappear when the user writes something in it. Tip: Do not replace a useful label with a placeholder. As soon as the user writes in the field, this text will no longer be visible, and screen readers may have difficulties reading this. A minimum should be to have the same information in the title/tooltip.</help-text>

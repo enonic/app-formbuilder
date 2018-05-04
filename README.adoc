@@ -1,0 +1,41 @@
+= Guillotine application
+
+Once assigned to your site, 
+the guillotine application will generate a dynamic GraphQL API that enables web-based access to all your editorial content.
+
+Guillotine exposes the read-only part of the Enonic Content API, including access to the Enonic query language. 
+Guillotine dynamically analyzes all available content types in the site and generates a GraphQL API specific to your site. 
+This gives you direct, typed and documented access to all content within the site. Including the ability to follow references, 
+child items and access media directly.
+
+== Compatibility
+
+[cols="1,1,3", options="header"]
+|===
+|Version 
+|XP Version
+|Download
+
+|0.1.5
+|>= 6.10.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/guillotine-0.1.5.jar[Download]
+
+|0.2.0
+|>= 6.13.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/0.2.0/guillotine-0.2.0.jar[Download]
+
+|1.0.0
+|>= 6.13.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/1.0.0/guillotine-1.0.0.jar[Download]
+|===
+
+== Build
+
+To build this project, execute the following:
+
+[source,bash]
+----
+./gradlew clean build
+----
+
+== link:docs/index.adoc[Documentation]

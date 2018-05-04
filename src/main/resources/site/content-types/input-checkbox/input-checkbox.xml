@@ -1,17 +1,17 @@
 <content-type>
   <display-name>Form input - Checkbox</display-name>
-  <content-display-name-script>$('label')</content-display-name-script>
+  <!--content-display-name-script>$('label')</content-display-name-script-->
   <super-type>base:structured</super-type>
   <form>
     <field-set name="basic-settings">
       <label>Basic settings</label>
       <items>
-        <input name="label" type="TextLine">
+        <!--input name="label" type="TextLine">
           <label>Label</label>
           <occurrences minimum="1" maximum="1"/>
           <config/>
           <help-text>[Required] Set the label for the checkbox. This should explain what the user agrees to or selects, and not just be a single word, as this is the only thing being read from this checkbox.</help-text>
-        </input>
+      </input-->
         <inline mixin="attr-title"/>
         <inline mixin="attr-required"/>
         <input name="value" type="TextLine">

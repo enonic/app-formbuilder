@@ -1,12 +1,12 @@
 <content-type>
   <display-name>Form input - Text area</display-name>
-  <content-display-name-script>$('label')</content-display-name-script>
+  <!--content-display-name-script>$('label')</content-display-name-script-->
   <super-type>base:structured</super-type>
   <form>
     <field-set name="basic-settings">
       <label>Basic settings</label>
       <items>
-        <inline mixin="attr-label"/>
+        <!--inline mixin="attr-label"/-->
         <inline mixin="attr-title"/>
         <inline mixin="attr-placeholder"/>
         <inline mixin="attr-required"/>

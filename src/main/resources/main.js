@@ -51,5 +51,5 @@ try {
         });
     }
 } catch(e) {
-    log.error('Could not connect to app-formbuilder-repo or create node app-formbuilder-repo/content. ', e);
+    log.error('Could not connect to repo ' + repoName + ' or create node ' + repoName + '/content. ', e);
 }

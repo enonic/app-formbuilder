@@ -1,7 +1,7 @@
 var Input = require('/lib/form-builder/model/input').Input;
 
 exports.map = function(inputConfig) {
-  return Input(_getFormattedName(inputConfig.data, inputConfig._name), _getInputType(inputConfig), inputConfig.data.label)
+  return Input(_getFormattedName(inputConfig.data, inputConfig._name), _getInputType(inputConfig), inputConfig.displayName)
     .setXpId(inputConfig._id)
     .setTitle(inputConfig.data.title)
     .setHelpText(inputConfig.data.help)
