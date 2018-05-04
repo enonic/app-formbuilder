@@ -1,18 +1,13 @@
-= Guillotine application
+= Formbuilder application
 
-Once assigned to your site, 
-the guillotine application will generate a dynamic GraphQL API that enables web-based access to all your editorial content.
-
-Guillotine exposes the read-only part of the Enonic Content API, including access to the Enonic query language. 
-Guillotine dynamically analyzes all available content types in the site and generates a GraphQL API specific to your site. 
-This gives you direct, typed and documented access to all content within the site. Including the ability to follow references, 
-child items and access media directly.
+Once assigned to your site,
+the formbuilder application lets you create your own web forms on your website.
 
 == Compatibility
 
 [cols="1,1,3", options="header"]
 |===
-|Version 
+|Version
 |XP Version
 |Download
 
