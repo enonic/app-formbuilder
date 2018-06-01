@@ -23,15 +23,32 @@ var XP_LIST_UTIL = {
   }
 };
 
+// Enables the submit button when CAPTCHA is verified
+function recaptchaCallback() {
+    var submitBtn = document.getElementById('xp-formbuilder-submit');
+    submitBtn.removeAttribute('disabled');
+};
+
+// Resets the CAPTCHA on verification timeout
+function recaptchaReset() {
+    grecaptcha.reset();
+};
 
 var XP_FORM_BUILDER = {
   initializeForm: function(event) {
     XP_FORM_BUILDER.initializeCheckboxes(document.getElementsByClassName("indeterminate"));
+    XP_FORM_BUILDER.disableSubmitForCaptcha();
   },
   initializeCheckboxes: function(checkboxes) {
     XP_LIST_UTIL.forEach(checkboxes, function(checkbox) {
       checkbox.indeterminate = true;
     });
+  },
+  disableSubmitForCaptcha: function() {
+      var submitBtn = document.getElementById('xp-formbuilder-submit');
+      if (submitBtn && submitBtn.getAttribute('data-captcha') == 'true') {
+          submitBtn.setAttribute('disabled', 'disabled');
+      }
   },
   addSubmitHandling: function(form) {
     var forms = document.getElementsByClassName("xp-formbuilder-form");

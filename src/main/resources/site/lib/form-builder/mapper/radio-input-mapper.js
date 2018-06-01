@@ -2,8 +2,10 @@ var Input = require('/lib/form-builder/model/input');
 var InputMapper = require('/lib/form-builder/mapper/input-mapper');
 
 exports.map = function(inputConfig) {
-  return InputMapper.map(inputConfig)
-    .setOptions(_getOptions(inputConfig.data));
+  /*return InputMapper.map(inputConfig)
+    .setOptions(_getOptions(inputConfig.data));*/
+    return InputMapper.map(inputConfig)
+        .setOptions(_getOptions(inputConfig.input[inputConfig.input._selected]));
 };
 
 function _getOptions(inputConfig) {

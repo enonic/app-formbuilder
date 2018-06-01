@@ -31,14 +31,21 @@ exports.map = function (formConfig) {
     .setSubmitMethod(_getSubmitMethod(formConfig))
     .setUsingAjax(formConfig.useAjax);
 
-  LIST_UTIL.iterateSafely(formConfig.inputs, function(inputId) {
-    var inputContent = contentLib.get({key: inputId});
+  LIST_UTIL.iterateSafely(formConfig.inputs, function(item) {
+    /*
+    var inputContent = contentLib.get({key: item});
     if (inputContent !== null) {
-      var input = _mapInputField(inputContent);
-      if (input.type === "file") form.enctype = "multipart/form-data";
-      form.addInputField(input);
+      var inputData = _mapInputField(inputContent);
+      if (inputData.type === "file") form.enctype = "multipart/form-data";
+      form.addInputField(inputData);
     } else {
-      log.error("Could not retrieve input element with ID '" + inputId + "'.");
+      log.error("Could not retrieve input element with ID '" + item + "'.");
+    }
+    */
+    // If valid input config (required fields have been set)
+    if (item.label) {
+        if (item.input._selected === "file") form.enctype = "multipart/form-data";
+        form.addInputField(_mapInputField(item));
     }
   });
   return form;
@@ -105,5 +112,6 @@ var _mapInputField = function(inputConfig) {
 };
 
 var _getInputType = function(inputConfig) {
-  return (inputConfig.type) ? inputConfig.type.split(":input-")[1] : "text"; // default: text
+  //return (inputConfig.type) ? inputConfig.type.split(":input-")[1] : "text"; // default: text
+  return (inputConfig.input && inputConfig.input._selected) ? inputConfig.input._selected : "text"; // default: text
 };

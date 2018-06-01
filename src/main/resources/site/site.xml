@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
   <config>
-    <field-set name="formbuilder-settings">
-      <label>Formbuilder config</label>
+    <field-set name="basic">
+      <label>Basic required settings</label>
       <items>
         <input type="TextLine" name="emailFrom">
           <label>E-mail FROM address</label>
@@ -10,31 +10,44 @@
           <config>
             <regexp>^\S+@\S+$</regexp><!-- allow any amount of characters in front and behind the @, disallow preceding or trailing whitespace -->
           </config>
-          <help-text>Default adress appearing in the e-mail's "from" line, example: "Noreply" &lt;noreply@example.com&gt; …or just an e-mail: noreply@example.com.</help-text>
+          <help-text>Default address appearing in the e-mail's "from" line, example: "Customer Service" &lt;noreply@example.com&gt; …or just an e-mail: noreply@example.com.</help-text>
         </input>
-        <input type="RadioButton" name="formbuilder-style">
-          <label>Global form style</label>
+        <input type="RadioButton" name="storageLocation">
+          <label>User-submitted data: Storage location and access policy</label>
           <occurrences minimum="1" maximum="1"/>
           <config>
-            <option value="default">Browser default</option>
-            <option value="xp-formbuilder">XP Formbuilder</option>
+            <option value="none">Minimal: No storage, only send the data by e-mail</option>
+            <option value="formbuilderRepo">Regular: Also store the data on the server, but only available in reports</option>
+            <option value="cmsRepo">Full: Data is stored as content underneath the form in Content Studio</option>
+          </config>
+          <default>formbuilderRepo</default>
+          <help-text>If "Minimal" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. "Regular" and "Full" will enable running reports with the widget. "Full" provides the most control over the data but might fill up Content Studio with thousands of form submissions if a form is popular and the submissions are not removed periodically.</help-text>
+        </input>
+        <input type="RadioButton" name="style">
+          <label>Form style</label>
+          <occurrences minimum="1" maximum="1"/>
+          <config>
+            <option value="inherit">Inherit browser default / site CSS</option>
+            <!--option value="xp-formbuilder">XP Formbuilder</option-->
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>
-          <default>default</default>
-          <help-text>Select global styling for forms generated with the formbuilder app. If you set styling in the form, that will override this setting. If "Browser default" is used, no style sheet is loaded for the form application, and you have full control over the form styling. "Twitter Bootstrap" currently uses v.3.3.5. "XP Formbuilder" is an extra example.</help-text>
+          <default>inherit</default>
+          <help-text>Select global styling for forms generated with the formbuilder app. If "Browser default" is used, no extra style sheet is loaded with the page, and the browser uses whatever CSS styling has been applied to the page for that type of HTML markup. "Twitter Bootstrap" currently uses v.3.3.5.</help-text>
         </input>
       </items>
     </field-set>
     <field-set name="recaptcha">
-        <label>reCAPTCHA</label>
+        <label>reCAPTCHA v2 (anti-spam measure)</label>
         <items>
-            <input type="TextLine" name="recaptchaSecretKey">
-                <label>Secret Key for reCAPTCHA</label>
-                <occurrences minimum="0" maximum="1"/>
-            </input>
             <input type="TextLine" name="recaptchaSiteKey">
-                <label>Site Key for reCAPTCHA</label>
+                <label>reCAPTCHA v2 Site Key</label>
                 <occurrences minimum="0" maximum="1"/>
+                <help-text>Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin</help-text>
+            </input>
+            <input type="TextLine" name="recaptchaSecretKey">
+                <label>reCAPTCHA v2 Secret Key</label>
+                <occurrences minimum="0" maximum="1"/>
+                <help-text>Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin</help-text>
             </input>
         </items>
     </field-set>

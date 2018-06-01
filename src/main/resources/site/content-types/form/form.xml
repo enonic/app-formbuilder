@@ -1,8 +1,8 @@
 <content-type>
-  <display-name>Form (item-set)</display-name>
+  <display-name>Form</display-name>
   <super-type>base:structured</super-type>
   <form>
-    <field-set name="basic-settings">
+    <field-set name="basic">
       <label>Basic configuration</label>
       <items>
         <!--input type="TextLine" name="title">
@@ -16,10 +16,75 @@
           <help-text>Optional, will be shown below the title and above the form.</help-text>
       </input-->
         <item-set name="inputs">
-          <label>Input fields</label>
+          <label>Input field</label>
           <items>
-            <input name="input" type="ContentSelector">
-                <label>Input content</label>
+              <inline mixin="attr-label"/>
+              <!--inline mixin="attr-title"/-->
+              <inline mixin="attr-required"/>
+              <inline mixin="attr-name"/>
+              <option-set name="input">
+                  <label>Input type and config</label>
+                  <expanded>false</expanded>
+                  <occurrences minimum="1" maximum="1"/>
+                  <options minimum="1" maximum="1">
+                    <option name="text">
+                      <label>Text line</label>
+                      <items>
+                          <inline mixin="attr-placeholder"/>
+                          <inline mixin="attr-value"/>
+                      </items>
+                    </option>
+                    <option name="textarea">
+                      <label>Text area</label>
+                      <items>
+                          <inline mixin="attr-placeholder"/>
+                          <inline mixin="attr-value"/>
+                      </items>
+                    </option>
+                    <option name="email">
+                      <label>E-mail</label>
+                      <items>
+                          <inline mixin="attr-placeholder"/>
+                          <!-- TODO: checkbox for include data copy, ++ -->
+                      </items>
+                    </option>
+                    <option name="checkbox">
+                      <label>Checkbox</label>
+                      <items>
+                          <inline mixin="attr-title"/>
+                      </items>
+                    </option>
+                    <option name="checkboxes">
+                      <label>Checkboxes group</label>
+                      <items>
+                          <inline mixin="attr-options-radio"/>
+                          <inline mixin="attr-title"/>
+                      </items>
+                    </option>
+                    <option name="radio">
+                      <label>Radio buttons</label>
+                      <items>
+                          <inline mixin="attr-options-radio"/>
+                          <inline mixin="attr-title"/>
+                      </items>
+                    </option>
+                    <option name="select">
+                      <label>Dropdown menu</label>
+                      <items>
+                          <inline mixin="attr-placeholder"/>
+                          <inline mixin="attr-options-radio"/>
+                      </items>
+                    </option>
+                    <option name="file">
+                      <label>File</label>
+                      <items>
+                          <inline mixin="attr-title"/>
+                      </items>
+                    </option>
+                  </options>
+              </option-set>
+            <!--input name="input" type="ContentSelector">
+                <label>Input fields</label>
                 <occurrences minimum="1" maximum="1"/>
                 <config>
                   <relationship-type>system:reference</relationship-type>
@@ -46,19 +111,18 @@
                   <allowPath>${site}/*</allowPath>
                 </config>
                 <help-text>Add the input fields to display in your form. These must be created before they can be added, but you can save the form and return to add them later.</help-text>
-            </input>
-            <input name="required" type="checkbox">
+            </input-->
+            <!--input name="required" type="checkbox">
               <label>Required</label>
               <occurrences minimum="0" maximum="1"/>
-            </input>
+          </input-->
           </items>
           <occurrences minimum="1" maximum="0"/>
         </item-set>
         <input type="TextLine" name="submitText">
           <label>Submit button-text</label>
           <occurrences minimum="0" maximum="1"/>
-          <default>Submit</default>
-          <help-text>Customize the text of the select button if you want. Defaults to "Submit".</help-text>
+          <help-text>Customize the text of the select button if you want. Defaults to "Submit" in the browser language.</help-text>
         </input>
         <!--input type="ContentSelector" name="responseFolder">
           <label>Folder to store responses</label>
@@ -105,7 +169,7 @@
         <input type="TextLine" name="emailFrom">
           <label>From</label>
           <occurrences minimum="0" maximum="1"/>
-          <help-text>Default address appearing in the e-mail's "from" line, example: "Noreply" &lt;noreply@example.com&gt; …or just an e-mail: noreply@example.com.</help-text>
+          <help-text>Default address appearing in the e-mail's "from" line, example: "Customer Service" &lt;noreply@example.com&gt; …or just an e-mail: noreply@example.com.</help-text>
           <config>
             <regexp>^\S+.*\S+@\S+$</regexp><!-- allow both "e@mail.com" and "E-mail <e@mail.com>" without preceding or trailing whitespace -->
           </config>
@@ -168,7 +232,7 @@
       </input-->
     </items>
     </field-set>
-    <field-set name="advanced-settings">
+    <field-set name="advanced">
       <label>Advanced settings</label>
       <items>
         <input type="TextLine" name="actionUrl">
@@ -190,18 +254,18 @@
           <label>AJAX submit</label>
           <occurrences minimum="0" maximum="1"/>
           <default>checked</default>
-          <help-text>Only un-check when the user should be sent to the target page upon submitting the form. An example of when this is useful is a search form, where the user should arrive at a result-page.</help-text>
+          <help-text>Only uncheck when the user should be sent to the target page upon submitting the form. An example of when this is useful is a search form, where the user should arrive at a result-page.</help-text>
         </input>
-        <input type="ComboBox" name="style">
+        <!--input type="ComboBox" name="style">
           <label>Style</label>
           <occurrences minimum="0" maximum="1"/>
           <config>
-            <option value="default">Default</option>
+            <option value="inherit">Inherit browser default / site CSS</option>
             <option value="xp-formbuilder">XP Formbuilder</option>
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>
           <help-text>Select which styling to apply. If "Browser default" is used, no style sheet is loaded for the form application, and you have full control over the form styling. "Twitter Bootstrap" currently uses v.3.3.5. "XP Formbuilder" is an extra example.</help-text>
-        </input>
+      </input-->
       </items>
     </field-set>
   </form>

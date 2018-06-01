@@ -5,11 +5,11 @@
       <label>Form</label>
       <items>
         <input type="ContentSelector" name="form">
-          <label>Add form</label>
+          <label>Form source (default: current content)</label>
           <occurrences minimum="0" maximum="1"/>
           <config>
             <relationship-type>system:reference</relationship-type>
-            <allow-content-type>no.vegard.it.xp.formbuilder:form</allow-content-type>
+            <allow-content-type>com.enonic.app.formbuilder:form</allow-content-type>
           </config>
         </input>
       </items>

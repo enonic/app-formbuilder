@@ -160,6 +160,8 @@
           </div>
       </div>
     </fieldset>
-    <input class="btn btn-primary xp-submit" type="submit" value="Submit" data-th-value="${form.submitText}"/>
+    <div data-th-if="${enableCaptcha and recaptchaIsConfigured and !isEditMode}" class="g-recaptcha" data-th-attr="data-sitekey=${recaptchaSiteKey}" data-callback="recaptchaCallback" data-expired-callback="recaptchaReset"></div>
+    <input data-th-if="${form.submitText}" id="xp-formbuilder-submit" class="btn btn-primary xp-submit" type="submit" value="Submit" data-th-value="${form.submitText}"/>
+    <input data-th-unless="${form.submitText}" id="xp-formbuilder-submit" class="btn btn-primary xp-submit" type="submit"/>
   </form>
 </section>

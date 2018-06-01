@@ -8,12 +8,13 @@ function Input(name, type, label) {
     return new Input(name, type, label);
   }
 
-  this.id = name;
+  this.id = name; // TODO: Switch to _id? (new extra parameter: id) double-check with setXpId below. not sure if this works with option-set instead of related content
   this.name = name; // required
   this.label = label; // required
   this.type = type;
 };
 
+// TODO: after switching to option-set, simply generate random number????
 Input.prototype.setXpId = function(_id) {
   this._id = _id;
   return this;

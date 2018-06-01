@@ -10,16 +10,13 @@ var CheckboxInputMapper = require('/lib/form-builder/mapper/checkbox-input-mappe
 
 var moment = require('/lib/moment.min.js'); // Import Moment.js
 
-var storeInCmsRepo = false;
-var repoName = storeInCmsRepo ? 'cms-repo' : 'app-formbuilder-repo';
-
-exports.save = function(request, formContent) {
+exports.save = function(request, siteConfig, formContent) {
   var formConfig = formContent.data;
   var formData = request.params;
-  formData.formId = formContent._id;
-  formData.displayName = formConfig.title || formContent.displayName;
-  var responseFolder = getResponseFolder(formConfig);
-  return receiveForm(formData, formConfig, responseFolder, request);
+  formData._formContentId = formContent._id;
+  formData._formContentDisplayName = formConfig.title || formContent.displayName;
+  var responseFolder = getResponseFolder(siteConfig, formConfig);
+  return receiveForm(formData, siteConfig, formConfig, responseFolder, request);
 };
 
 
@@ -30,7 +27,7 @@ var isSet = function(value) {
 };
 
 // Run a function in the Draft branch context, such as storing form responses in the Draft branch
-var runInDraft = function(callback) {
+var runInDraft = function(repoName, callback) {
   return context.run(
     {
       repository: repoName,
@@ -41,7 +38,7 @@ var runInDraft = function(callback) {
 }
 
 // Run with admin privileges
-var runAsSu = function(callback) {
+var runAsSu = function(repoName, callback) {
   return context.run(
     {
       repository: repoName,
@@ -84,17 +81,20 @@ var _getInputValue = function(inputName, formData) {
 
 /*** Private functions for the inner workings of the class ***/
 
-var receiveForm = function(formData, formConfig, responseFolder, request) {
+var receiveForm = function(formData, siteConfig, formConfig, responseFolder, request) {
   var attachments = [];
   var emailAttachments = [];
   var multiPartForm = portal.getMultipartForm();
   if (multiPartForm) {
-    attachments = saveAttachments(multiPartForm, responseFolder);
+    // TODO: avoid saving attachments if storageLocation is "none"
+    attachments = saveAttachments(siteConfig, multiPartForm, responseFolder);
     for (var i = 0; i < attachments.length; i++) {
       var attachment = attachments[i];
       emailAttachments.push({
         fileName: attachment.displayName,
-        data: runAsSu(function() {
+        data: runAsSu(
+            (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+            function() {
           return contentLib.getAttachmentStream({
             key: attachment.id,
             name: attachment.name
@@ -106,7 +106,9 @@ var receiveForm = function(formData, formConfig, responseFolder, request) {
       formData[attachment.inputId].attachments.push({
         id: attachment.id,
         name: attachment.name,
-        url: runAsSu(function() {
+        url: runAsSu(
+            (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+            function() {
           return portal.attachmentUrl({
             id: attachment.id,
             download: true
@@ -115,20 +117,32 @@ var receiveForm = function(formData, formConfig, responseFolder, request) {
       });
     }
   }
-  var email = sendEmailToRecipients(formData, formConfig, request, emailAttachments);
-  try {
-    return saveForm(formData, responseFolder);
-  }
-  catch(e) {
-    log.error(e.message);
-    return false;
+  //var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
+  // TODO: try switching execution order with line above, or better: run asyncronously somehow
+  if (siteConfig.storageLocation !== 'none') {
+      try {
+        return saveForm(formData, siteConfig, request, responseFolder);
+      }
+      catch(e) {
+        log.error(e.message);
+        return false;
+      }
   }
 };
 
-var saveForm = function(form, responseFolder) {
+var saveForm = function(form, siteConfig, request, responseFolder) {
   var timestamp = moment().format('YYYY-MM-DDTHH:mm:ss');
-  var name = "".concat("[", timestamp, "] ", form.displayName);
-  var response = runAsSu(function() {
+  var name = "".concat("[", timestamp, "] ", form._formContentDisplayName);
+  if (request.headers['Referer']) {
+      form._requestHeadersReferer = request.headers['Referer'];
+  }
+  // Never store the Google reCAPTCHA response
+  // TODO: wash any other parameters that are not present in the input config and not private
+  delete form['g-recaptcha-response'];
+
+  var response = runAsSu(
+      (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+      function() {
     return contentLib.create({
       parentPath: responseFolder,
       displayName: name,
@@ -141,19 +155,19 @@ var saveForm = function(form, responseFolder) {
   return response;
 };
 
-var saveAttachments = function(form, responseFolder) {
-  var attachmentsFolder = getAttachmentFolderOrCreateNew(responseFolder);
+var saveAttachments = function(siteConfig, form, responseFolder) {
+  var attachmentsFolder = getAttachmentFolderOrCreateNew(siteConfig, responseFolder);
   var files = getFilesFromForm(form);
   var savedFiles = [];
   for (var index = 0; index < files.length; index++) {
-    var savedFile = saveFile(files[index], attachmentsFolder);
+    var savedFile = saveFile(files[index], attachmentsFolder, siteConfig);
     savedFiles.push(savedFile);
   }
   return savedFiles;
 };
 
-var getResponseFolder = function(formConfig) {
-  if (storeInCmsRepo) {
+var getResponseFolder = function(siteConfig, formConfig) {
+  if (siteConfig.storageLocation === 'cmsRepo') {
     try {
       return formConfig["responseFolder"] ?
         contentLib.get({key: formConfig["responseFolder"]})._path :
@@ -166,9 +180,11 @@ var getResponseFolder = function(formConfig) {
   }
 };
 
-var getAttachmentFolderOrCreateNew = function(parentFolder) {
+var getAttachmentFolderOrCreateNew = function(siteConfig, parentFolder) {
   try {
-    var attachmentsFolder = runAsSu(function() {
+    var attachmentsFolder = runAsSu(
+        (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+        function() {
       return contentLib.create({
         name: '_attachments',
         parentPath: parentFolder,
@@ -205,9 +221,11 @@ var inputIsFile = function(input) {
   return (input["fileName"] !== undefined && input["contentType"] !== undefined);
 };
 
-var saveFile = function(file, folder) {
+var saveFile = function(file, folder, siteConfig) {
   var stream = portal.getMultipartStream(file.name);
-  var result = runAsSu(function() {
+  var result = runAsSu(
+      (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+      function() {
     return contentLib.createMedia({
       name: file.fileName,
       parentPath: folder,
@@ -226,11 +244,12 @@ var saveFile = function(file, folder) {
   };
 };
 
-var sendEmailToRecipients = function(formData, formConfig, request, emailAttachments) {
-  var systemEmailFrom = formConfig.emailFrom;
+var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, emailAttachments) {
+  var systemEmailFrom = formConfig.emailFrom || siteConfig.emailFrom;
   var userEmailFrom = null;
   var userReceiptEmailTo = null;
 
+  /*
   // Arrays that will later be populated with values and concatenated in the e-mail body
   var inputDisplayNames = [];
   var inputValues = [];
@@ -288,7 +307,73 @@ var sendEmailToRecipients = function(formData, formConfig, request, emailAttachm
   var subjectFromInput = '';
   if (isSet(formConfig.subjectCheckbox) && formConfig.subjectCheckbox) {
     if (isSet(formConfig.subjectField)) {
-      subjectFromInput = runAsSu(function () {
+      subjectFromInput = runAsSu(
+          (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+          function () {
+          return formData[contentLib.get({ key: formConfig["subjectField"] })._name];
+      });
+    }
+  }
+  var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData.displayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
+  */
+
+  // Arrays that will later be populated with values and concatenated in the e-mail body
+  var inputLabels = [];
+  var inputValues = [];
+
+  // Populate arrays with input display names and values, in the same order as in the formConfig
+  // irrelevant inputs such as headings are still included, in order to enforce a strict index correspondence between inputDisplayNames[] and inputValues[]
+  util.forceArray(formConfig.inputs).forEach(function(_id) {
+    // Empty strings by default, since all this will be concatenated into a single string in the end
+    var label = '';
+    var value = '';
+
+    // Use contentLib.get without specifying branch in order to get content from cms-repo and from executed context (either draft or master)
+
+      displayName = inputContent.displayName;
+      inputName = _getFormattedName(inputContent);
+      inputValue = _getInputValue(inputName, formData);
+      // For checkbox inputs, create slightly more understandable values (normally it's either 'on' or not provided in the request data)
+      if (inputContent.type === app.name + ':input-checkbox') {
+        var checkbox = CheckboxInputMapper.map(inputContent);
+        inputValue = (formData[checkbox.name]) ? 'Yes' : 'No';
+      }
+      // Sets the e-mail address for the TO field
+      if (inputContent.type === app.name + ':input-email') {
+        userReceiptEmailTo = inputValue.trim();
+      }
+    inputLabels.push(label);
+    inputValues.push(value);
+
+    // Set e-mail sender address to be the one given in the form data, if provided
+    if (formConfig.emailFromInput && _id === formConfig.emailFromInput && inputValue) {
+      formConfig.emailFrom = inputValue;
+    }
+  });
+
+  // Generate string for e-mail body, with HTML line breaks after each input and value
+  var formDataBeautified = [];
+  inputDisplayNames.forEach(function(displayName, index) {
+    var value = inputValues[index];
+    // Only show inputs that have a value (not headings, fields left empty…)
+    if (value) {
+      formDataBeautified.push(displayName + ': ' + value + '<br/>');
+    }
+  });
+  // Add referer info, if available. Other debug info may be printed here, but don't forget about privacy concerns with storing user data
+  if (request.headers['Referer']) {
+    formDataBeautified.push('<br/><br/>Form submitted from URL: ' + request.headers['Referer']);
+  }
+  // Join all data as separate lines in a single HTML string
+  formDataBeautified = formDataBeautified.join(' ');
+
+  // Create e-mail subject line
+  var subjectFromInput = '';
+  if (isSet(formConfig.subjectCheckbox) && formConfig.subjectCheckbox) {
+    if (isSet(formConfig.subjectField)) {
+      subjectFromInput = runAsSu(
+          (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
+          function () {
           return formData[contentLib.get({ key: formConfig["subjectField"] })._name];
       });
     }

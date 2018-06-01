@@ -3,10 +3,14 @@ var InputMapper = require('/lib/form-builder/mapper/input-mapper');
 var LIST_UTIL = require('/lib/form-builder/list-util');
 
 exports.map = function(inputConfig) {
-  return InputMapper.map(inputConfig)
+  /*return InputMapper.map(inputConfig)
     .setAcceptedFileTypes(_getAcceptedFileTypes(inputConfig.data))
     .setSupportsCapture(_isSupportCapture(inputConfig.data))
-    .setAllowMultipleFiles(inputConfig.data.multiple);
+    .setAllowMultipleFiles(inputConfig.data.multiple);*/
+    return InputMapper.map(inputConfig)
+        .setAcceptedFileTypes(_getAcceptedFileTypes(inputConfig.input[inputConfig.input._selected]))
+        .setSupportsCapture(_isSupportCapture(inputConfig.input[inputConfig.input._selected]))
+        .setAllowMultipleFiles(inputConfig.input[inputConfig.input._selected].multiple);
 };
 
 function _getAcceptedFileTypes(inputConfig) {
@@ -23,8 +27,8 @@ function _getAcceptedFileTypes(inputConfig) {
 function _isSupportCapture(inputConfig) {
   var supportsCapture = false;
   LIST_UTIL.iterateSafely(inputConfig.accept, function(acceptedFormat) {
-    if (acceptedFormat === 'image/*' || 
-        acceptedFormat === 'video/*' || 
+    if (acceptedFormat === 'image/*' ||
+        acceptedFormat === 'video/*' ||
         acceptedFormat === 'audio/*') {
       return supportsCapture;
     }

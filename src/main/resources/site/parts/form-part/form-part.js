@@ -1,6 +1,7 @@
 var portal = require('/lib/xp/portal'); // Import the portal functions
 var thymeleaf = require('/lib/xp/thymeleaf'); // Import the Thymeleaf rendering function
 var contentLib = require('/lib/xp/content'); // Import the content library
+var recaptcha = require('/lib/recaptcha');
 
 var moment = require('/lib/moment.min.js'); // Import Moment.js
 
@@ -16,9 +17,9 @@ var styleConfig = {
         css: "css/formbuilder.css",
         view: "/views/xp-formbuilder/form.html"
     },
-    default: {
+    inherit: {
         css: "",
-        view: "/views/default/form.html"
+        view: "/views/inherit/form.html"
     }
 };
 
@@ -94,14 +95,15 @@ exports.get = function(request) {
     var model = {
         name: content.displayName,
         form: form,
+        enableCaptcha: (!contentData.disableCaptcha),
+        recaptchaSiteKey: recaptcha.getSiteKey(),
+        recaptchaIsConfigured: recaptcha.isConfigured(),
         formInputGroups: groupInputsByHeading(form.inputs),
         introText: contentData.introText ? portal.processHtml({ value: contentData.introText }) : null
     };
 
-    //log.info(JSON.stringify(model, null, 4));
-
-    // Specify the view file to use. Use form config as primary option, site config as secondary option and "default" as fallback/default.
-    var style = contentData.style || siteConfig["formbuilder-style"] || "default";
+    // Specify the view file to use. Use form config as primary option, site config as secondary option and "inherit" as fallback/default.
+    var style = contentData.style || siteConfig.style || "inherit";
     var view = resolve(styleConfig[style].view);
 
     // Get client-side JavaScript for the formbuilder
@@ -113,8 +115,11 @@ exports.get = function(request) {
     return {
         body: thymeleaf.render(view, model),
         pageContributions: {
-            headBegin: styleConfig[style].css ? "<link rel='stylesheet' href='" + createCssUrl(style) + "'/>" : "",
-            headEnd: "<script type='text/javascript' src='" + formScript + "'></script>"
+            headBegin: styleConfig[style].css ? ['<link rel="stylesheet" href="' + createCssUrl(style) + '"/>'] : [''],
+            headEnd: [
+                '<script type="text/javascript" src="' + formScript + '"></script>',
+                '<script type="text/javascript" src="https://www.google.com/recaptcha/api.js"></script>'
+            ]
         }
     };
 };
@@ -142,12 +147,28 @@ function applyResponse(responseContent, responseMessage) {
 // Handle POST request (a form submission)
 exports.post = function(request) {
     var formContent = getFormContent();
+    var siteConfig = portal.getSiteConfig();
+    var enableCaptcha = (!formContent.data.disableCaptcha);
 
-    // Save the form response
-    var response = FormResponse.save(request, formContent);
-    if (response) {
-        return applyResponse(formContent.data.successContent, formContent.data.successMessage);
+    // Verify the g-recaptcha-response
+    // (defaults to true because it fails if recaptcha is disabled in the config,
+    // but in that case the CAPTCHA is also not rendered on the page to begin with)
+    var recaptchaVerified = true;
+    if (enableCaptcha && recaptcha.isConfigured()) {
+        recaptchaVerified = recaptcha.verify(request.params['g-recaptcha-response']);
+    }
+
+    if (!recaptchaVerified) {
+        return {
+            body: '<p>The reCAPTCHA was not valid.</p>'
+        }
     } else {
-        return applyResponse(formContent.data.errorContent, formContent.data.errorMessage);
+        // Save the form response
+        var response = FormResponse.save(request, siteConfig, formContent);
+        if (response) {
+            return applyResponse(formContent.data.successContent, formContent.data.successMessage);
+        } else {
+            return applyResponse(formContent.data.errorContent, formContent.data.errorMessage);
+        }
     }
 };
