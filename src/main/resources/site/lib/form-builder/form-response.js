@@ -117,7 +117,7 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
       });
     }
   }
-  //var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
+  var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
   // TODO: try switching execution order with line above, or better: run asyncronously somehow
   if (siteConfig.storageLocation !== 'none') {
       try {
@@ -318,46 +318,44 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   */
 
   // Arrays that will later be populated with values and concatenated in the e-mail body
-  var inputLabels = [];
-  var inputValues = [];
+  var labels = [];
+  var values = [];
 
   // Populate arrays with input display names and values, in the same order as in the formConfig
   // irrelevant inputs such as headings are still included, in order to enforce a strict index correspondence between inputDisplayNames[] and inputValues[]
-  util.forceArray(formConfig.inputs).forEach(function(_id) {
+  util.forceArray(formConfig.inputs).forEach(function(inputConfig) {
     // Empty strings by default, since all this will be concatenated into a single string in the end
-    var label = '';
-    var value = '';
+    var label = inputConfig.label || '';
+    var name = encodeURIComponent(inputConfig.name || inputConfig.label);
+    var value = _getInputValue(name, formData);
 
-    // Use contentLib.get without specifying branch in order to get content from cms-repo and from executed context (either draft or master)
-
-      displayName = inputContent.displayName;
-      inputName = _getFormattedName(inputContent);
-      inputValue = _getInputValue(inputName, formData);
       // For checkbox inputs, create slightly more understandable values (normally it's either 'on' or not provided in the request data)
-      if (inputContent.type === app.name + ':input-checkbox') {
-        var checkbox = CheckboxInputMapper.map(inputContent);
-        inputValue = (formData[checkbox.name]) ? 'Yes' : 'No';
+      if (inputConfig.input && inputConfig.input._selected && inputConfig.input._selected === 'checkbox') {
+        var checkbox = CheckboxInputMapper.map(inputConfig);
+        value = (formData[checkbox.name]) ? 'Yes' : 'No';
       }
       // Sets the e-mail address for the TO field
-      if (inputContent.type === app.name + ':input-email') {
-        userReceiptEmailTo = inputValue.trim();
+      // Currently DISABLED (needs boolean sendReceipt in config)
+      if (inputConfig.input && inputConfig.input._selected && inputConfig.input._selected === 'email') {
+        userReceiptEmailTo = value.trim();
       }
-    inputLabels.push(label);
-    inputValues.push(value);
+    labels.push(label);
+    values.push(value);
 
     // Set e-mail sender address to be the one given in the form data, if provided
-    if (formConfig.emailFromInput && _id === formConfig.emailFromInput && inputValue) {
-      formConfig.emailFrom = inputValue;
+    if (formConfig.emailFromInput && _id === formConfig.emailFromInput && value) {
+        // TODO: verify logic!!! should perhaps have been userEmailFrom? Or was that specifically omitted due to variable scope?
+      formConfig.emailFrom = value;
     }
   });
 
   // Generate string for e-mail body, with HTML line breaks after each input and value
   var formDataBeautified = [];
-  inputDisplayNames.forEach(function(displayName, index) {
-    var value = inputValues[index];
+  labels.forEach(function(labelText, index) {
+    var val = values[index];
     // Only show inputs that have a value (not headings, fields left empty…)
-    if (value) {
-      formDataBeautified.push(displayName + ': ' + value + '<br/>');
+    if (val) {
+      formDataBeautified.push(labelText + ': ' + val + '<br/>');
     }
   });
   // Add referer info, if available. Other debug info may be printed here, but don't forget about privacy concerns with storing user data
@@ -368,6 +366,8 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   formDataBeautified = formDataBeautified.join(' ');
 
   // Create e-mail subject line
+  // Currently DISABLED due to missing boolean in form config
+  // TODO: update to get data from optionset-based model
   var subjectFromInput = '';
   if (isSet(formConfig.subjectCheckbox) && formConfig.subjectCheckbox) {
     if (isSet(formConfig.subjectField)) {
@@ -378,9 +378,11 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
       });
     }
   }
-  var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData.displayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
+  //var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData.displayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
+  var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData._formContentDisplayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
 
   // Send e-mail receipt to user
+  // Currently DISABLED due to missing boolean in form config
   if (isSet(formConfig.sendReceipt) && formConfig.sendReceipt && userEmailTo.length > 0) {
     mail.send({
       from: systemEmailFrom || 'noreply@example.com', // TODO: get from site config, or form
@@ -389,7 +391,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
       body: (isSet(formConfig.includeFormData) && formConfig.includeFormData)
         ? '<code>' + portal.processHtml({ value: formConfig.receiptMessage }) + '<br/>' + formDataBeautified + '</code>'
         : '<code>' + portal.processHtml({ value: formConfig.receiptMessage }) + '</code>',
-      attachments: [],
+      attachments: [], // a waste of time and resources to e-mail the uploaded attachments back to the user
       contentType: 'text/html; charset="UTF-8"'
     });
   }
