@@ -52,7 +52,7 @@ If the Form Builder app has been configured to store data using the "Regular" or
 
 === Automatic form response deletion upon running reports
 
-By default, a checkbox "Delete the exported form responses" inside the widget is selected. This deletes all the form responses that were included in your report as soon as the report has been generated. This is in order to comply with general data protection regulation. If for some reason you need to keep the data stored in Enonic XP after running your report (such as for testing purposes), you need to *uncheck* this checkbox.
+By default, a checkbox "Delete the exported form responses" inside the widget is selected. This deletes all the form responses that were included in your report as soon as the report has been generated. This is in order to comply with general data protection regulation. If for some reason you need to keep the data stored in Enonic XP after running your report (such as for testing purposes), you need to _uncheck_ this checkbox.
 
 === Other data access options
 
@@ -72,9 +72,14 @@ If you need access to form response data at a more individual level without runn
 
 == Releases and Compatibility
 
-| Version        | XP version |
-| ------------- | ------------- |
-| 1.0.0 | 6.13.0 |
+[cols=2*,options=header]
+|===
+|Version
+|XP version
+
+|1.0.0
+|6.13.0
+|===
 
 *Important!* This App is not backwards compatible with any XP version before 6.13.
 
