@@ -5,34 +5,44 @@ var util = require('/lib/enonic/util/data');
 var moment = require('/lib/moment.min.js');
 
 function createCSV(responses, formContent, separator) {
-    log.info('responses');
+    /*log.info('responses');
     log.info(JSON.stringify(responses, null, 4));
     log.info('formContent');
     log.info(JSON.stringify(formContent, null, 4));
     log.info('separator');
-    log.info(JSON.stringify(separator, null, 4));
-    
+    log.info(JSON.stringify(separator, null, 4));*/
+
     // TODO: improve fields array, at least base it on the most recent content or on form content id from URL parameter
     // TODO: get fields from form content!
-    var fields = Object.keys(responses[0].data);
+    //var fields = Object.keys(responses[0].data);
 
-    var responseData = [];
-    responses.forEach(function (hit) {
-        responseData.push(hit.data);
+    var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+        return encodeURIComponent(inputConfig.name || inputConfig.label);
+    });
+    var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+        return inputConfig.label;
     });
 
+    // Add response data to easily accessible array object
+    var responseData = [];
+    responses.forEach(function (response) {
+        responseData.push(response.data);
+    });
+
+    // Function to fallback to empty strings for empty fields
     var replacer = function(key, value) {
         return (value === null) ? '' : value;
     };
 
-    var csv = responseData.map(function(row) {
-        return fields.map(function(fieldName) {
-            return JSON.stringify(row[fieldName], replacer);
+    // Create CSV data
+    var csv = responseData.map(function (row) {
+        return fieldReferences.map(function (fieldRef) {
+            return JSON.stringify(row[fieldRef], replacer);
         }).join(separator);
     });
 
-    // add header column
-    csv.unshift(fields.join(separator));
+    // Add header column
+    csv.unshift(fieldNames.join(separator));
 
     return csv.join('\r\n');
 }
@@ -94,15 +104,12 @@ function handleGet(req) {
         responsesMetadata.hits.forEach(function (hit) {
             responses.push(formbuilderRepo.get(hit.id));
         });
+
         csv = createCSV(responses, formContent, separator);
-        log.info('csv');
-        log.info(JSON.stringify(csv, null, 4));
     }
 
-    return false;
-
     return {
-        body: '',
+        body: csv,
         contentType: 'text/csv',
         contentDisposition: 'attachment; filename="' + req.params.filename + '"'
     };
