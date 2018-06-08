@@ -30,7 +30,7 @@ function handleGet(req) {
         isForm: isForm,
         actionUrl: portalLib.serviceUrl({ service: 'formreport' }),
         currentDate: moment().format('YYYY-MM-DD'),
-        filename: content.displayName + '-' + moment().format('YYYY-MM-DD') + '.csv'
+        filename: content._name + '-' + moment().format('YYYY-MM-DD') + '.csv'
     };
 
     if (isForm) {
@@ -64,7 +64,7 @@ function handleGet(req) {
             query: 'data._formContentId = "' + contentId + '"',
             sort: 'createdTime ASC',
             count: 1,
-            contentTypes: ['base:unstructured'],
+            contentTypes: ['base:unstructured']/*,
             aggregations: {
                 oldestCreatedTime: {
                     terms: {
@@ -73,16 +73,16 @@ function handleGet(req) {
                         size: 1
                     }
                 }
-            }
+            }*/
         });
 
-        var lastResponse = formbuilderRepo.query({
+        var lastResponseQuery = formbuilderRepo.query({
             branch: 'draft',
             query: 'data._formContentId = "' + contentId + '"',
             sort: 'createdTime DESC',
             count: 1,
             contentTypes: ['base:unstructured'],
-            aggregations: {
+            /*aggregations: {
                 newestCreatedTime: {
                     terms: {
                         field: 'createdTime',
@@ -90,14 +90,14 @@ function handleGet(req) {
                         size: 1
                     }
                 }
-            }
+            }*/
         });
 
         var hasResponses = (responses.total > 0);
 
         model.hasResponses = hasResponses;
         model.numResponses = responses.total;
-        model.oldestCreatedDate = (responses.aggregations && responses.aggregations.oldestCreatedTime
+        /*model.oldestCreatedDate = (responses.aggregations && responses.aggregations.oldestCreatedTime
             && responses.aggregations.oldestCreatedTime.buckets
             && responses.aggregations.oldestCreatedTime.buckets[0]
             && responses.aggregations.oldestCreatedTime.buckets[0].key) ?
@@ -106,7 +106,9 @@ function handleGet(req) {
             && lastResponse.aggregations.newestCreatedTime.buckets
             && lastResponse.aggregations.newestCreatedTime.buckets[0]
             && lastResponse.aggregations.newestCreatedTime.buckets[0].key) ?
-                lastResponse.aggregations.newestCreatedTime.buckets[0].key.substring(0, 10) : null;
+                lastResponse.aggregations.newestCreatedTime.buckets[0].key.substring(0, 10) : null;*/
+        model.oldestCreatedDate = (responses.hits.length) ? formbuilderRepo.get(responses.hits[0].id).createdTime.substring(0, 10) : null;
+        model.newestCreatedDate = (lastResponseQuery.hits.length) ? formbuilderRepo.get(lastResponseQuery.hits[0].id).createdTime.substring(0, 10) : null;
         model.repoId = (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder';
     }
 
@@ -116,11 +118,3 @@ function handleGet(req) {
     };
 }
 exports.get = handleGet;
-
-function getContentTitle(id) {
-    var content = contentLib.get({key: id});
-    if (content) {
-        return sanitize(content.displayName) + ' - ' + content._path;
-    }
-    return null;
-}

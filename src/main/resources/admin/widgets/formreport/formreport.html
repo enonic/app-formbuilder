@@ -1,41 +1,7 @@
 <body>
-<!--div>
-    <link rel="stylesheet" href="../../../assets/css/formreport.css"
-          data-th-href="${portal.assetUrl({'_path=css/formreport.css'})}"
-          type="text/css" media="all"/>
-    <style data-th-if="${css}" data-th-text="${css}"></style>
-
-    <div data-th-id="'xpcontentviewerid_' + ${uid}" class="xp-contentviewer">
-        <div data-th-id="tabs" class="xp-contentviewer-tabs">
-            <a data-th-id="tab_draft" href="#" onclick="return ContentViewer.cv_branchToggle('draft');" data-th-class="${showMaster? '' : 'selected'}" data-th-remove="${contentDraft}? none : all">Draft branch</a>
-            <a data-th-id="tab_master" href="#" onclick="return ContentViewer.cv_branchToggle('master');" data-th-class="${showMaster? 'selected' : ''}" data-th-remove="${contentMaster}? none : all">Master branch</a>
-        </div>
-
-        <div data-th-id="draft" data-th-style="${showDraft? '' : 'display:none'}">
-        <img alt="Copy JSON to clipboard" class="xp-contentviewer-copy draft" data-th-src="${portal.assetUrl({'_path=img/clippy.svg'})}"/>
-        <span class="xpcontentviewer-tooltip draft">JSON copied to clipboard</span>
-        <pre class="xpcontentviewer-content draft" data-th-remove="${contentDraft}? none : all">
-<code data-th-utext="${contentDraft}">
-{"test": 123}
-</code>
-        </pre>
-        </div>
-
-        <div data-th-id="master" data-th-style="${showMaster? '' : 'display:none'}">
-        <img alt="Copy JSON to clipboard" class="xp-contentviewer-copy master" data-th-src="${portal.assetUrl({'_path=img/clippy.svg'})}"/>
-        <span class="xpcontentviewer-tooltip master">JSON copied to clipboard</span>
-        <pre class="xpcontentviewer-content master" data-th-remove="${contentMaster}? none : all">
-<code data-th-utext="${contentMaster}">
-{"test": 234}
-</code>
-        </pre>
-        </div>
-    </div>
-</div-->
-
-<p data-th-unless="${isForm}">Select a content of type Form in the content hierarchy. (You currently have selected <em>something</em>, but it is a [[${content.type}]], not a Form belonging to this app)<br/></p>
-<p data-th-if="${isForm}" data-th-unless="${hasResponses}">The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
-<form data-th-if="${isForm and hasResponses}" data-th-id="'formreportid_' + ${uid}" data-th-action="${actionUrl}" method="get">
+    <p data-th-unless="${isForm}">Select a content of type Form in the content hierarchy. (You currently have selected <em>something</em>, but it is a [[${content.type}]], not a Form belonging to this app)<br/></p>
+    <p data-th-if="${isForm}" data-th-unless="${hasResponses}">The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
+    <form data-th-if="${isForm and hasResponses}" data-th-id="'formreportid_' + ${uid}" data-th-action="${actionUrl}" method="get">
         <fieldset class="form-block columns">
             <legend><h4>Form response report</h4></legend>
             <br/>
@@ -100,6 +66,4 @@
             </div>
         </div>
     </form>
-
-
 </body>
