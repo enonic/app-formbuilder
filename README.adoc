@@ -2,7 +2,7 @@
 
 This is an application that lets you build simple web forms in Enonic XP. It can send data by e-mail and/or store data in Enonic for later report running with the included Form Report widget. Reports are stored as a Comma-Separated Values (CSV) file which is viewable in your spreadsheet application of choice. The feature set is relatively close to the built-in form builder that was in Enonic CMS, but with added user-friendliness using features in Enonic XP. With regards to how personal data is processed, the app is configurable at several different security levels and with default options that erase stored personal data once they have been used by the system, in order to be GDPR compliant.
 
-The app was originally a fork of [XP Form Builder by Vegard Haugstvedt](https://github.com/it-vegard/xp-form-builder) with the original artwork and parts of that data model still present in the code. The main difference that this app has a closer resemblance to the form builder that was in Enonic CMS.
+The app was originally a fork of https://github.com/it-vegard/xp-form-builder[XP Form Builder by Vegard Haugstvedt] with the original artwork and parts of that data model still present in the code. The main difference that this app has a closer resemblance to the form builder that was in Enonic CMS.
 
 == Installation
 
