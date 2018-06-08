@@ -1,79 +1,85 @@
-# Enonic XP Form Builder #
+# Enonic XP Form Builder
 
-This is an application to enable form-building in Enonic XP.
-It has build-in support for Bootstrap, browser defaults and a custom made design.
+This is an application that lets you build simple web forms in Enonic XP. It can send data by e-mail and/or store data in Enonic for later report running with the included Form Report widget. Reports are stored as a Comma-Separated Values (CSV) file which is viewable in your spreadsheet application of choice. The feature set is relatively close to the built-in form builder that was in Enonic CMS, but with added user-friendliness using features in Enonic XP. With regards to how personal data is processed, the app is configurable at several different security levels and with default options that erase stored personal data once they have been used by the system, in order to be GDPR compliant.
 
-The code and application are free-to-use under the MIT licence, which basically allows use in both open-source and enterprise applications, as long as a reference to this project is included.
+The app was originally a fork of [XP Form Builder by Vegard Haugstvedt](https://github.com/it-vegard/xp-form-builder) with the original artwork and parts of that data model still present in the code. The main difference that this app has a closer resemblance to the form builder that was in Enonic CMS.
 
-I would appreciate a notice if you use my code, though, as I am interested in how others use it.
+## Installation
 
-NB! Though this project is licenced under the MIT licence, Enonic XP itself is licenced under the GNU GPL licence.
+There are three options:
 
-## For developing on this application or forking it, see the bottom of the page ##
+* First option is to open the Enonic XP Applications admin tool. In here select "Install" and find this app in the Market list of available apps.
+* Second alternative is to simply download the app [JAR file](http://repo.enonic.com/public/com/enonic/app/formbuilder/1.0.0/app-formbuilder-1.0.0.jar) and move it to the XP installation's `$XP_HOME/deploy` folder.
+* Or you can build this app with gradle. First, download the zip file of this repo. Unpack it locally. In the terminal, from the root of the project, type `./gradlew build`. On Windows, just type `gradlew build`. Next, move the JAR file from `build/libs` to your `$XP_HOME/deploy` directory. The Form Buider app will now be available to add to your websites through the Content Studio admin tool in Enonic XP.
 
-## How to install and use the form builder app ##
+If you are upgrading to a newer version of this app by any other means than the Applications admin tool described above, make sure to remove the old version's JAR file from the `$XP_HOME/deploy` directory.
 
-### Installing ###
+From the Content Studio: Edit your site and add the application. Save. You may notice that the application is highlighted, because required fields have not been filled out. These are the fields described in the section directly below.
 
-1. From the applications tab: Download the application from Enonic Market.
-2. From the content studio: Edit your site and add the application. Save.
-![How site config should look after app has been installed](https://github.com/it-vegard/xp-form-builder/blob/master/docs/images/install-application.PNG "Site config with app installed")
-3. From site config: Edit config. Choose styling for the app. You can choose between Twitter Bootstrap, browser defaults (your CSS will have full control over styling) and an example styling.
-![App config before styling is chosen.](https://github.com/it-vegard/xp-form-builder/blob/master/docs/images/configure-app.PNG "Choose between Twitter bootstrap, browser default and an example styling.")
-4. From the content studio: Create a page template. You can choose to base this on existing page templates, or choose the one supplied with this app.
-5. Set what content types to associate the template with. You can of course associate it with the form content type, which will create standalone form pages, or you can add the form part on a landing page or similar.
-6. From the template config: Add the form part. If you only associate the template with the form content type: Save and start making forms. If adding forms on other pages: You will have to edit the part configuration on the pages you want to show a form. In the part configuration you add the form you want to display. This also works if you make a fragment of the form, so the form is shown on any page you add the fragment.
-![The form part configuration](https://github.com/it-vegard/xp-form-builder/blob/master/docs/images/form-part-config.PNG "Configure the part on the pages you add it unless they are standalone form pages.")
-7. Create forms!
+## Application setup and configuration options
 
-### My first form ###
+### E-mail FROM address
 
-All content types in the app are organized with 2-3 sections. 
-* The basic settings should always be filled out. 
-* Some may have a middle section related the specific content type. Although these are not required, it is recommended to fill them out. 
-* The advanced settings are not normally required, and it will usually be the IT department that will make changes here.
+**Required.** Although the Form Builder app can store form responses in Enonic without sending data by e-mail, this configuration field has been set to required since some specific setup choices depend on it.
 
-1. From the content studio: Create a new form somewhere on a site where you added the application.
-![How the content tree of the site could look after adding a form](https://github.com/it-vegard/xp-form-builder/blob/master/docs/images/form-added-to-site.PNG "Form added to site")
-2. You have many options on how to configure your form, but in many cases you can just leave the default settings in place. 
- 1. The only part you need to do, is add input elements. (We will get back to that in the next item) You can also add a heading (H2-level heading) above the form, though this is optional. 
- 2. The next entries relate to how and where to submit the form. Although there are default settings, you most likely want to have a look at these.
-  1. If submitting to Enonic, you can choose to add a folder to store the responses in. By default, the data is stored as child content under the form.
-  2. You may want to add a response message. This will be displayed below the form after it is submitted.
-  3. If you want to customize the text on the submit button, feel free.
- 3. The next settings are all advanced features, and you should check with the IT department before changing these.
-  1. If the form data should be submitted to a third-party application, you need to set the URL.
-  2. Submit method: Defaults to POST, but choose GET where you want the form data added to the URL, like for search forms, etc.
-  3. Ajax submit: Disable if the user should be sent to the URL specified above. Defaults to submitting and staying on the same page. The response message will be shown below the form to confirm that it has been submitted.
-  4. Style: Override the styling chosen for the site.
-3. Since you do not have any input elements right now, save and go back to the content studio.
-4. You can now create input elements. Although they can be created anywhere on the site, the recommendation is to place them either as children to the form or in a central folder to re-use in different forms.
- 1. There are a lot of different input types to choose from. They are not documented here, but all configuration options have help-texts (Available from Enonic XP 6.7).
- 2. All legal HTML5 attributes are supported.
- 3. The same rules as specified at the top of the section applies: You will almost always need to fill out the basic settings, some input types have a middle section that should be filled out, and the advanced settings should only be changed if you are sure of what the change will do.
-5. After creating the input elements you need, edit the form and add them.
- 1. You can sort the input elements as you want to.
-6. That's it! Watch the responses pouring in
+### User-submitted data: Storage location and access policy
 
-![Example of how you may set up the form responses, input elements and forms in the content studio. Example of a form to the right.](https://github.com/it-vegard/xp-form-builder/blob/master/docs/images/example-overview.PNG "Example of how the content studio may look with forms added.")
+**Required.** This sets the policy for how and where data is stored, if at all. The setting may be changed later without losing any data, but then data will reside in different locations before and after the change.
 
-### Displaying responses ###
+* If "Minimal" is selected, each form *must* have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent, since the data is not stored in Enonic.
+* "Regular" will store the form response data in a hidden repo and enable running reports with the Form Report widget. This is the default setting and is a nice compromise between the need for data management/security and ensuring that personal data rights are protected.
+* "Full" is like "Regular", but stores the form responses directly as content in Content Studio. This provides the most control over the data (for example when fullfilling a GDPR "Right to erasure" request) but might fill up Content Studio with thousands of form submissions if a form is popular and the submissions are not removed periodically.
 
-If you want an easy way to view the responses, a special page template is added for this purpose. These are the quick instructions on how to use this:
+### reCAPTCHA v2 (anti-spam measure)
 
-1. Create a new template in the content studio and select the page template called "Form response".
-2. Set "Unstructured" as supported content types.
-3. View your response by selecting it in the content studio. (No need to open the content!)
-4. Now you can easily navigate between the responses by moving up and down in the site structure.
+Are you a robot? To enable reCAPTCHA, both the Site Key and and Secret Key fields must be filled out. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin
 
-## Development instructions ##
+## Create a page template to show your forms
 
-### Prerequisites ###
+1. From the Content Studio: Create a page template. You can choose to base this on existing page templates, or choose the one supplied with this app.
+2. Set what content types to associate the template with. You can of course associate it with the Form content type, which will create standalone form pages, or you can add the form part on a landing page or similar if the form is just to be a minor part of the page.
+3. From the page editor: Add the "Form view" part. If you only associate the template with the Form content type: Save and start making forms. If adding forms on other pages: You will have to edit the part configuration on the pages you want to show a form. In the part configuration you add the form you want to display. This also works if you make a fragment of the form, so the form is shown on any page you add the fragment.
+
+## Creating your first form
+
+From the Content Studio: Create a new content of type "Form" somewhere on a site where you added the application. If you made a page template that supports the Form content type, otherwise you must add it to a page using the "Form view" part.
+
+You have many options on how to configure your form, but in many cases you can just leave the default settings in place. The only part you need to do, is add one or more input fields. **NB:** If you've configured the app to use the "Minimal" data storage policy, you also *must* add one or more "Send to" e-mail addresses in the corresponding field further down.
+
+## Form Report widget
+
+If the Form Builder app has been configured to store data using the "Regular" or "Full" policy, form responses are stored as "base:unstructured" content, together with any file attachments that users have submitted in File inputs in the web form. These may then be exported to a Comma-Separated Values (CSV) file which is viewable in your spreadsheet application of choice.
+
+### Automatic form response deletion upon running reports
+
+By default, a checkbox "Delete the exported form responses" inside the widget is selected. This deletes all the form responses that were included in your report as soon as the report has been generated. This is in order to comply with general data protection regulation. If for some reason you need to keep the data stored in Enonic XP after running your report (such as for testing purposes), you need to *uncheck* this checkbox.
+
+### Other data access options
+
+If you need access to form response data at a more individual level without running reports at regular intervals, there are options provided with other Enonic XP apps:
+
+* Using the widget available in the Content Viewer app (requires the data storage policy set to "Full").
+* Using the admin tool available in the Data Toolbox app. This also allows individual removal of form response data for both data storage policies "Regular" and "Full".
+
+## Development instructions
+
+### Prerequisites
 * Install Enonic XP 6.13.0 or above
 * Set the XP_HOME variable to point to your Enonic home folder.
 
-### Installation ###
+### Deployment
 * Run "./gradlew deploy" (UNIX) or "gradlew.bat deploy" (Windows) to install to a local installation.
 
-### Install to server ###
-* Run "./gradlew build" to build, and then copy the jar-file created under "/build/libs" 
+## Releases and Compatibility
+
+| Version        | XP version |
+| ------------- | ------------- |
+| 1.0.0 | 6.13.0 |
+
+**Important!** This App is not backwards compatible with any XP version before 6.13.
+
+## Changelog
+
+### Version 1.0.0
+
+* First release
