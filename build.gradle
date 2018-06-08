@@ -17,6 +17,7 @@ buildscript {
 
 //apply plugin: 'lesscss'
 apply plugin: 'com.enonic.xp.app'
+apply plugin: 'maven-publish'
 
 version = '1.0.0'
 
@@ -65,3 +66,16 @@ repositories {
 }
 
 //jar.dependsOn += lessc
+
+publishing {
+  publications {
+    mavenJava( MavenPublication ) {
+      from components.java
+    }
+  }
+  repositories {
+    maven {
+      url 'http://repo.enonic.net/artifactory/public'
+    }
+  }
+}
