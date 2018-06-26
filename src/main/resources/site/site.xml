@@ -51,5 +51,27 @@
             </input>
         </items>
     </field-set>
+    <item-set name="proxy">
+      <label>Proxy</label>
+      <occurrences minimum="0" maximum="1"/>
+      <items>
+        <input name="host" type="TextLine">
+          <label>Host</label>
+          <occurrences minimum="1" maximum="1"/>
+        </input>
+        <input name="port" type="TextLine">
+          <label>Port</label>
+          <occurrences minimum="0" maximum="1"/>
+        </input>
+        <input name="user" type="TextLine">
+          <label>User</label>
+          <occurrences minimum="0" maximum="1"/>
+        </input>
+        <input name="password" type="TextLine">
+          <label>Password</label>
+          <occurrences minimum="0" maximum="1"/>
+        </input>
+      </items>
+    </item-set><!-- proxy -->
   </config>
 </site>
