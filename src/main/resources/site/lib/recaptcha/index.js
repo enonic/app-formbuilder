@@ -28,7 +28,9 @@ exports.verify = function(response) {
         'params': {
             'secret': exports.getSecretKey(),
             'response': response
-        }});
+        },
+        proxy: portal.getSiteConfig().proxy
+    });
 
     var recaptchaVerifiedJSON = JSON.parse(recaptchaVerified);
 
