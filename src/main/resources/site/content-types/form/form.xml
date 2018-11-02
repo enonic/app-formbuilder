@@ -2,8 +2,8 @@
   <display-name>Form</display-name>
   <super-type>base:structured</super-type>
   <form>
-    <field-set name="basic">
-      <label>Basic configuration</label>
+    <field-set name="elements">
+      <label>Form elements</label>
       <items>
         <!--input type="TextLine" name="title">
           <label>Heading</label>
@@ -21,7 +21,6 @@
               <inline mixin="attr-label"/>
               <!--inline mixin="attr-title"/-->
               <inline mixin="attr-required"/>
-              <inline mixin="attr-name"/>
               <option-set name="input">
                   <label>Input type and config</label>
                   <expanded>false</expanded>
@@ -83,6 +82,7 @@
                     </option>
                   </options>
               </option-set>
+              <inline mixin="attr-name"/>
             <!--input name="input" type="ContentSelector">
                 <label>Input fields</label>
                 <occurrences minimum="1" maximum="1"/>

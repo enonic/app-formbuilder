@@ -1,43 +1,17 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-        mavenCentral()
-        maven {
-            url 'http://repo.enonic.com/public'
-        }
-    }
-
-    dependencies {
-        classpath 'com.enonic.xp:gradle-plugin:6.9.0'
-        //classpath 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
-    }
+plugins {
+    id 'com.enonic.xp.app' version '1.0.17'
+    id 'com.enonic.defaults' version '1.0.3'
+    id 'maven'
 }
 
-
-//apply plugin: 'lesscss'
-apply plugin: 'com.enonic.xp.app'
-apply plugin: 'maven-publish'
-
-version = '1.0.0'
+version = '1.1.0-SNAPSHOT'
 
 app {
     name = 'com.enonic.app.formbuilder'
-    displayName = 'Enonic XP Form Builder'
+    displayName = 'Form Builder'
     vendorName = 'Enonic'
     vendorUrl = 'https://github.com/enonic'
-}
-
-//lessc {
-//    sourceDir 'src/main/resources/site/assets/less'
-//    include '*.less'
-//    destinationDir = 'build/resources/main/site/assets/css'
-//    options.strictMath = true
-//    encoding = "utf-8"
-//}
-
-ext {
-    xpVersion = '6.13.0'
+    systemVersion = "${xpVersion}"
 }
 
 dependencies {
@@ -63,19 +37,4 @@ repositories {
     maven {
         url 'http://repo.enonic.com/public'
     }
-}
-
-//jar.dependsOn += lessc
-
-publishing {
-  publications {
-    mavenJava( MavenPublication ) {
-      from components.java
-    }
-  }
-  repositories {
-    maven {
-      url 'http://repo.enonic.net/artifactory/public'
-    }
-  }
 }
