@@ -1,5 +1,5 @@
 var portal = require('/lib/xp/portal'); // Import the portal functions
-var thymeleaf = require('/lib/xp/thymeleaf'); // Import the Thymeleaf rendering function
+var thymeleaf = require('/lib/thymeleaf'); // Import the Thymeleaf rendering function
 
 // Handle the GET request
 exports.get = function(req) {
@@ -20,7 +20,7 @@ exports.get = function(req) {
 
     // Specify the view file to use
     var view = resolve('form-page.html');
-    
+
     // Render the dynamic HTML with values from the model
     var body = thymeleaf.render(view, model);
 

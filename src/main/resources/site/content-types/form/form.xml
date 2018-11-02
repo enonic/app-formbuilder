@@ -18,71 +18,71 @@
         <item-set name="inputs">
           <label>Input field</label>
           <items>
-              <inline mixin="attr-label"/>
-              <!--inline mixin="attr-title"/-->
-              <inline mixin="attr-required"/>
+              <mixin name="attr-label"/>
+              <!--mixin name="attr-title"/-->
+              <mixin name="attr-required"/>
               <option-set name="input">
-                  <label>Input type and config</label>
+                  <label>Type and config</label>
                   <expanded>false</expanded>
                   <occurrences minimum="1" maximum="1"/>
                   <options minimum="1" maximum="1">
                     <option name="text">
                       <label>Text line</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-value"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-value"/>
                       </items>
                     </option>
                     <option name="textarea">
                       <label>Text area</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-value"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-value"/>
                       </items>
                     </option>
                     <option name="email">
                       <label>E-mail</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
+                          <mixin name="attr-placeholder"/>
                           <!-- TODO: checkbox for include data copy, ++ -->
                       </items>
                     </option>
                     <option name="checkbox">
                       <label>Checkbox</label>
                       <items>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="checkboxes">
                       <label>Checkboxes group</label>
                       <items>
-                          <inline mixin="attr-options-radio"/>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-options-radio"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="radio">
                       <label>Radio buttons</label>
                       <items>
-                          <inline mixin="attr-options-radio"/>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-options-radio"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="select">
                       <label>Dropdown menu</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-options-radio"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-options-radio"/>
                       </items>
                     </option>
                     <option name="file">
                       <label>File</label>
                       <items>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                   </options>
               </option-set>
-              <inline mixin="attr-name"/>
+              <mixin name="attr-name"/>
             <!--input name="input" type="ContentSelector">
                 <label>Input fields</label>
                 <occurrences minimum="1" maximum="1"/>

@@ -137,8 +137,15 @@ var saveForm = function(form, siteConfig, request, responseFolder) {
       form._requestHeadersReferer = request.headers['Referer'];
   }
   // Never store the Google reCAPTCHA response
-  // TODO: wash any other parameters that are not present in the input config and not private
+  // TODO: delete any other parameters that are not present in the input config and not private
   delete form['g-recaptcha-response'];
+
+  // Sanitize input values
+  for (var key in form) {
+    if (form.hasOwnProperty(key)) {
+        form[key] = portal.sanitizeHtml(form[key]);
+    }
+  }
 
   var response = runAsSu(
       (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',

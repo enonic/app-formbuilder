@@ -1,10 +1,10 @@
 <mixin>
   <display-name>Attr: Multiple</display-name>
-  <items>
+  <form>
     <input name="multiple" type="CheckBox">
       <label>Allow multiple?</label>
       <occurrences minimum="0" maximum="1"/>
       <help-text>[Optional] Check to enable uploading multiple files.</help-text>
     </input>
-  </items>
+  </form>
 </mixin>

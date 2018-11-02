@@ -1,6 +1,6 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
-var thymeleaf = require('/lib/xp/thymeleaf');
+var thymeleaf = require('/lib/thymeleaf');
 var ioLib = require('/lib/xp/io');
 var nodeLib = require('/lib/xp/node');
 var util = require('/lib/enonic/util/data');
