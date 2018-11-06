@@ -1,0 +1,6 @@
+<service>
+  <allow>
+    <principal>role:this.should.fail</principal>
+    <principal>role:system.everyone</principal>
+  </allow>
+</service>
