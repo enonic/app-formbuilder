@@ -98,6 +98,10 @@ function handleGet(req) {
 
         csv = createCSV(responses, formContent, separator);
 
+        // Add byte order mark for automatic UTF-8 recognition in Excel 2013 (and later) for Windows
+        // source: http://stackoverflow.com/questions/6002256
+        csv = '\uFEFF' + csv;
+
         // Delete exported content
         if (purge) {
             responsesMetadata.hits.forEach(function (hit) {
@@ -108,7 +112,7 @@ function handleGet(req) {
 
     return {
         body: csv,
-        contentType: 'text/csv',
+        contentType: 'text/csv; charset="UTF-8"',
         headers: {
             'Content-Disposition': 'attachment; filename="' + filename + '"'
         }
