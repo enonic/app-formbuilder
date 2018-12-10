@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Value (time)</display-name>
-  <form>
+  <items>
     <input name="value" type="Time">
       <label>Default value</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Set the pre-defined/default time. Use this if the user normally will be selecting one specific value or as a good starting point for selecting the time.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

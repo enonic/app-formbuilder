@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Value (text)</display-name>
-  <form>
+  <items>
     <input name="value" type="TextLine">
       <label>Default value (optional)</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Set the pre-defined/default value. Use this if the user normally will be selecting one specific value to make the form easier to fill in.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

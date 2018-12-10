@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Min (datetime)</display-name>
-  <form>
+  <items>
     <input name="min" type="DateTime">
       <label>Minimum date and time</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Limit what the minimum date and time set can be.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

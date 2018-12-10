@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Pattern</display-name>
-  <form>
+  <items>
     <input name="pattern" type="TextLine">
       <label>Pattern (regex)</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] For advanced users/developers: Set a regex expression to validate input, e.g. phone numbers, email addresses, etc. Do not use this if you do are not experienced with regexes, as an incorrect regex can prevent users from completing your form.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Max (datetime)</display-name>
-  <form>
+  <items>
     <input name="max" type="DateTime">
       <label>Maximum date and time</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Limit what the maximum date and time set can be.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

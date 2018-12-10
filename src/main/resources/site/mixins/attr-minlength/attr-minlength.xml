@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Minlength</display-name>
-  <form>
+  <items>
     <input name="minlength" type="Long">
       <label>Minimum lenght</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Set the maximum length of the password. Except for pincodes, this should never be below 8 characters, and preferably above 10.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>

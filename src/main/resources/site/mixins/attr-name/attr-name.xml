@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Name</display-name>
-  <form>
+  <items>
     <input name="name" type="TextLine">
       <label>Technical name</label>
       <occurrences minimum="0" maximum="1"/>
       <help-text>[Optional] Use to customize the name attribute of the input field. This is used to identify the field, e.g. in the receiving system. If left empty, a URI encoded version of Label is used. In other words, characters that are not a-z, A-Z, 0-9, period, dash, or underscore may end up being URI encoded, e.g. "two%20words"</help-text>
       <config/>
     </input>
-  </form>
+  </items>
 </mixin>

@@ -1,6 +1,6 @@
 <mixin>
   <display-name>Attr: Options (radio)</display-name>
-  <form>
+  <items>
     <item-set name="options">
       <label>Option</label>
       <items>
@@ -22,5 +22,5 @@
       </items>
       <occurrences minimum="2" maximum="0"/>
     </item-set>
-  </form>
+  </items>
 </mixin>

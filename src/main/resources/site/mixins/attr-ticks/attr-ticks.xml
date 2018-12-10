@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Ticks</display-name>
-  <form>
+  <items>
     <input name="ticks" type="Double">
       <label>Ticks (step values)</label>
       <occurrences minimum="0" maximum="0"/>
       <config/>
       <help-text>[Optional] Manually set each value ("tick") that can be selected. If you use the Boostrap theme, this will specify the options in the select instead.</help-text>
     </input>
-  </form>
+  </items>
 </mixin>
