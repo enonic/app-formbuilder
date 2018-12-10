@@ -20,9 +20,16 @@ function createCSV(responses, formContent, separator) {
         responseData.push(response.data);
     });
 
-    // Function to fallback to empty strings for empty fields
+    // Function to prettify field values
     var replacer = function(key, value) {
-        return (value === null) ? '' : value;
+        if (value && typeof value === 'string') {
+            // Convert whitespace to merged single space
+            return value.replace(/[\s]+/gm, ' ');
+        }
+        if (value === null) {
+            return ''
+        }
+        return value;
     };
 
     // Create CSV data
@@ -35,7 +42,8 @@ function createCSV(responses, formContent, separator) {
     // Add header column
     csv.unshift(fieldNames.join(separator));
 
-    return csv.join('\r\n');
+    // Add line endings for rows and escape every backslash-escaped doublequote (using the CSV double-doublequote method)
+    return csv.join('\r\n').replace(/\\"/gm, '""');
 }
 
 function handleGet(req) {
@@ -102,10 +110,25 @@ function handleGet(req) {
         // source: http://stackoverflow.com/questions/6002256
         csv = '\uFEFF' + csv;
 
-        // Delete exported content
+        // Delete exported content and related attachments
         if (purge) {
-            responsesMetadata.hits.forEach(function (hit) {
-                formbuilderRepo.delete(hit.id);
+            responses.forEach(function (response) {
+                // Delete related attachments
+                var relatedAttachmentIds = [];
+                Object.keys(response.data).forEach(function (key) {
+                    if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
+                        util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                            if (attachment.id) {
+                                relatedAttachmentIds.push(attachment.id);
+                            }
+
+                        });
+                    }
+                });
+                formbuilderRepo.delete(relatedAttachmentIds);
+
+                // Delete form response
+                formbuilderRepo.delete(response._id);
             });
         }
     }

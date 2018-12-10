@@ -142,12 +142,18 @@ var saveForm = function(form, siteConfig, request, responseFolder) {
   // TODO: delete any other parameters that are not present in the input config and not private
   delete form['g-recaptcha-response'];
 
-  // Sanitize input values
+  // Sanitize string input values
+  /*
+    Disabled until the full list of HTML entities has been documented so that it can be reversed upon report generation, e.g. revert all @ chars converted to &#64;
+    It seems like the "&\+<=>@ characters are the ones in question? Source: https://github.com/OWASP/java-html-sanitizer/issues/84
+    doublequote &#34;, et &amp;, backslash \\, backslashspace \\ , doublespace  , plus &#43;, lessthan &lt;, equals &#61;, greaterthan &gt;, at &#64;
+    
   for (var key in form) {
-    if (form.hasOwnProperty(key)) {
+    if (form.hasOwnProperty(key) && typeof form[key] === 'string') {
         form[key] = portal.sanitizeHtml(form[key]);
     }
   }
+  */
 
   var response = runAsSu(
       (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
