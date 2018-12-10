@@ -6,9 +6,9 @@ The app was originally a fork of https://github.com/it-vegard/xp-form-builder[XP
 
 == Installation
 
-There are three options:
+There are three ways to install this app:
 
-* First option is to open the Enonic XP Applications admin tool. In here select "Install" and find this app in the Market list of available apps.
+* First alternative is to open the Enonic XP Applications admin tool. In here select "Install" and find this app in the Market list of available apps.
 * Second alternative is to simply download the app http://repo.enonic.com/public/com/enonic/app/formbuilder/1.0.0/app-formbuilder-1.0.0.jar[JAR file] and move it to the XP installation's `$XP_HOME/deploy` folder.
 * Or you can build this app with gradle. First, download the zip file of this repo. Unpack it locally. In the terminal, from the root of the project, type `./gradlew build`. On Windows, just type `gradlew build`. Next, move the JAR file from `build/libs` to your `$XP_HOME/deploy` directory. The Form Buider app will now be available to add to your websites through the Content Studio admin tool in Enonic XP.
 
@@ -42,9 +42,9 @@ Are you a robot? To enable reCAPTCHA, both the Site Key and and Secret Key field
 
 == Creating your first form
 
-From the Content Studio: Create a new content of type "Form" somewhere on a site where you added the application. If you made a page template that supports the Form content type, otherwise you must add it to a page using the "Form view" part.
+From the Content Studio: Create a new content of type "Form" somewhere on a site where you added the application. If you made a page template that supports the Form content type, you will get a preview as you edit your form content. Otherwise you must add the form to a page using the "Form view" part before the form can be shown on a page.
 
-You have many options on how to configure your form, but in many cases you can just leave the default settings in place. The only part you need to do, is add one or more input fields. **NB:** If you've configured the app to use the "Minimal" data storage policy, you also _must_ add one or more "Send to" e-mail addresses in the corresponding field further down.
+You have many options on how to configure your form, but in many cases you can just leave the default settings in place. The only part you need to do, is add one or more input fields. **NB:** If you've configured the app to use the "Minimal" data storage policy, you also _must_ add one or more e-mail addresses in the corresponding field "Send data by e-mail => To" further down in your configuration.
 
 == Form Report widget
 
@@ -79,11 +79,21 @@ If you need access to form response data at a more individual level without runn
 
 |1.0.0
 |6.13.0
+
+|1.1.0
+|6.13.0
 |===
 
 *Important!* This App is not backwards compatible with any XP version before 6.13.
 
 == Changelog
+
+=== Version 1.1.0
+
+* Send e-mail receipt back to the user
+* Allow periods in input names
+* Support HTML editor macros in thank you message
+* Show thank you message also when storage location is set to none
 
 === Version 1.0.0
 
