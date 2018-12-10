@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-  <form>
+  <config>
     <field-set name="basic">
       <label>Basic required settings</label>
       <items>
@@ -73,5 +73,5 @@
         </input>
       </items>
     </item-set><!-- proxy -->
-  </form>
+  </config>
 </site>
