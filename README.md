@@ -81,6 +81,14 @@ If you need access to form response data at a more individual level without runn
 
 ## Changelog
 
+### Version 1.1.0
+
+* Send e-mail receipt back to the user
+* Allow periods in input names
+* Delete related attachments on export
+* Support HTML editor macros in thank you message
+* Show thank you message also when storage location is set to none
+
 ### Version 1.0.0
 
 * First release
