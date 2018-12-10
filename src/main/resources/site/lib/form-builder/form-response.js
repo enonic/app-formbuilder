@@ -128,6 +128,8 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
         return false;
       }
   }
+  // Return success if storageLocation is "none"
+  return true;
 };
 
 var saveForm = function(form, siteConfig, request, responseFolder) {
