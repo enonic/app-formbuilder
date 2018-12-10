@@ -6,7 +6,7 @@ var moment = require('/lib/moment.min.js');
 
 function createCSV(responses, formContent, separator) {
     var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
-        return encodeURIComponent(inputConfig.name || inputConfig.label);
+        return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
     var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
         return inputConfig.label;

@@ -27,7 +27,8 @@ function _getFormattedName(inputConfig) {
   var illegalCharacters = /^[a-z0-9_]+/g;
   return name.toLowerCase().replace(illegalCharacters, '_');
   */
-  return encodeURIComponent(inputConfig.name || inputConfig.label);
+  // encodeURIComponent() ignores periods, so periods get converted to underscore in order for data nodes to be saved in Enonic XP if form has fields with periods in name
+  return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
 }
 
 function _getClassAttribute(inputConfig) {

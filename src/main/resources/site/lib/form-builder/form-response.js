@@ -267,7 +267,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   util.forceArray(formConfig.inputs).forEach(function(inputConfig) {
     // Empty strings by default, since all this will be concatenated into a single string in the end
     var label = inputConfig.label || '';
-    var name = encodeURIComponent(inputConfig.name || inputConfig.label);
+    var name = encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     var value = _getInputValue(name, formData);
 
       // For checkbox inputs, create slightly more understandable values (normally it's either 'on' or not provided in the request data)
