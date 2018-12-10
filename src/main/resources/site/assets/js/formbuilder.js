@@ -135,10 +135,17 @@ var XP_FORM_BUILDER = {
       // introTextElement.remove();
       introTextElement.parentElement.removeChild(introTextElement);
     }
+    /*
     var responseTag = document.createElement("div");
     responseTag.className = "xp-form-response";
     responseTag.innerHTML = message;
     form.parentElement.insertBefore(responseTag, form);
+    */
+    var successElement = document.getElementById("xp-formbuilder-successmessage");
+    if (successElement) {
+      // Show success message
+      successElement.removeAttribute("style");
+    }
     window.scrollTo(0,0);
   }
 };

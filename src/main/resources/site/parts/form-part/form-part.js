@@ -100,7 +100,8 @@ exports.get = function(request) {
         recaptchaSiteKey: recaptcha.getSiteKey(),
         recaptchaIsConfigured: recaptcha.isConfigured(),
         formInputGroups: groupInputsByHeading(form.inputs),
-        introText: contentData.introText ? portal.processHtml({ value: contentData.introText }) : null
+        introText: contentData.introText ? portal.processHtml({ value: contentData.introText }) : null,
+        successMessage: contentData.successMessage ? portal.processHtml({ value: contentData.successMessage }) : null
     };
 
     // Specify the view file to use. Use form config as primary option, site config as secondary option and "inherit" as fallback/default.

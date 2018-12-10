@@ -1,7 +1,7 @@
 <section>
   <h2 data-th-text="${name}" data-th-if="${name}">Form-part</h2>
   <div id="xp-formbuilder-introtext" data-th-utext="${introText}"></div>
-  <div id="xp-formbuilder-successmessage" class="editor"></div>
+  <div id="xp-formbuilder-successmessage" data-th-utext="${successMessage}" style="display:none"></div>
   <form data-th-id="${form.id}" id="my-form" data-th-class="${(form.ajax == true) ? 'ajax-submit ' : ''} + 'xp-formbuilder-form'" data-th-action="${form.actionUrl}" action="#" data-th-method="${form.method}" method="post" data-th-enctype="${form.enctype}">
     <fieldset data-th-each="inputGroup : ${formInputGroups}">
       <legend data-th-if="${inputGroup[0].type == 'heading'}">
