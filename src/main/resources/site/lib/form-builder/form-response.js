@@ -254,9 +254,8 @@ var saveFile = function(file, folder, siteConfig) {
 };
 
 var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, emailAttachments) {
-  var systemEmailFrom = formConfig.emailFrom || siteConfig.emailFrom;
-  var userEmailFrom = null;
-  var userReceiptEmailTo = null;
+  var systemEmailAddr = formConfig.emailFrom || siteConfig.emailFrom;
+  var userEmailAddr = null;
 
   // Arrays that will later be populated with values and concatenated in the e-mail body
   var labels = [];
@@ -275,18 +274,15 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
         var checkbox = CheckboxInputMapper.map(inputConfig);
         value = (formData[checkbox.name]) ? 'Yes' : 'No';
       }
-      // Sets the e-mail address for the TO field
-      // Currently DISABLED (needs boolean sendReceipt in config)
-      if (inputConfig.input && inputConfig.input._selected && inputConfig.input._selected === 'email') {
-        userReceiptEmailTo = value.trim();
-      }
     labels.push(label);
     values.push(value);
 
-    // Set e-mail sender address to be the one given in the form data, if provided
-    if (formConfig.emailFromInput && _id === formConfig.emailFromInput && value) {
-        // TODO: verify logic!!! should perhaps have been userEmailFrom? Or was that specifically omitted due to variable scope?
-      formConfig.emailFrom = value;
+    // Set user e-mail address to be the value from the first e-mail input field in the form data
+    if (inputConfig.input && inputConfig.input._selected && inputConfig.input._selected === 'email' && value && value.trim()) {
+      // Only set once, for the first input of type 'email' with a supplied value. Disregard any following email input values
+      if (!userEmailAddr) {
+        userEmailAddr = value.trim();
+      }
     }
   });
 
@@ -323,15 +319,18 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData._formContentDisplayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
 
   // Send e-mail receipt to user
-  // Currently DISABLED due to missing boolean in form config
-  if (isSet(formConfig.sendReceipt) && formConfig.sendReceipt && userEmailTo.length > 0) {
+  if (isSet(formConfig.receipt) && formConfig.receipt && formConfig.receipt._selected === 'enabled' && userEmailAddr && userEmailAddr.length > 0) {
+    var emailBody = portal.processHtml({ value: formConfig.receipt.enabled.message });
+    // Append form data to message HTML
+    if (formConfig.receipt.enabled.includeFormData) {
+      emailBody += '<code>' + formDataBeautified + '</code>';
+    }
+
     mail.send({
-      from: systemEmailFrom || 'noreply@example.com', // TODO: get from site config, or form
-      to: userReceiptEmailTo,
+      from: systemEmailAddr || 'noreply@example.com',
+      to: userEmailAddr,
       subject: subject,
-      body: (isSet(formConfig.includeFormData) && formConfig.includeFormData)
-        ? '<code>' + portal.processHtml({ value: formConfig.receiptMessage }) + '<br/>' + formDataBeautified + '</code>'
-        : '<code>' + portal.processHtml({ value: formConfig.receiptMessage }) + '</code>',
+      body: emailBody,
       attachments: [], // a waste of time and resources to e-mail the uploaded attachments back to the user
       contentType: 'text/html; charset="UTF-8"'
     });
@@ -340,7 +339,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   // Send e-mail to subscribers
   if (formConfig.emailSubscribers) {
     return mail.send({
-      from: userEmailFrom || systemEmailFrom || 'noreply@example.com',
+      from: userEmailAddr || systemEmailAddr || 'noreply@example.com',
       to: util.forceArray(formConfig.emailSubscribers),
       subject: subject,
       body: '<code>' + formDataBeautified + '</code>',

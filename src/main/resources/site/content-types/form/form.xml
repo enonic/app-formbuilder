@@ -156,10 +156,10 @@
       </items>
     </field-set>
     <field-set name="email-settings">
-      <label>E-mail with form data</label>
+      <label>Send data by e-mail</label>
       <items>
         <input type="TextLine" name="emailSubscribers">
-          <label>Send to e-mail address</label>
+          <label>To</label>
           <occurrences minimum="0" maximum="0"/>
           <help-text>Optional. E-mail addresses specified in these fields will receive all the raw form response data in an e-mail, and with uploaded files as attachments.</help-text>
           <config>
@@ -183,7 +183,7 @@
           <help-text>If one of the inputs for the form specified in the "Input fields" list above is of type "E-mail", that input may be used as the FROM address in the e-mail that is sent with the form data. That way, the e-mail subscribers may reply to the user e-mail directly. Overrides the default "E-mail sent FROM" specified further below.</help-text>
       </input-->
         <input type="TextLine" name="emailSubject">
-          <label>E-mail subject</label>
+          <label>Subject</label>
           <occurrences minimum="0" maximum="1"/>
           <help-text>Is the form heading by default, but a custom e-mail subject may be specified here. If neither are filled out, the display name is used.</help-text>
         </input>
@@ -230,6 +230,33 @@
           <label>Receipt message</label>
           <occurrences minimum="0" maximum="1"/>
       </input-->
+      <option-set name="receipt">
+          <label>E-mail receipt back to user</label>
+          <expanded>false</expanded>
+          <occurrences minimum="1" maximum="1"/>
+          <help-text>For this to work, one of the Input Fields created above MUST be of type "e-mail" and be "required".</help-text>
+          <options minimum="1" maximum="1">
+            <option name="disabled">
+              <label>No, do not send receipt</label>
+              <default>true</default>
+            </option>
+            <option name="enabled">
+              <label>Yes, send receipt</label>
+              <help-text>For this to work, one of the Input Fields created above MUST be of type "e-mail" and be "required".</help-text>
+              <items>
+                <input name="message" type="HtmlArea">
+                  <label>Receipt message</label>
+                  <occurrences minimum="1" maximum="1"/>
+                  <help-text>For this to work, one of the Input Fields created above MUST be of type "e-mail" and be "required".</help-text>
+                </input>
+                <input name="includeFormData" type="checkbox">
+                  <label>Include summary of submitted form data</label>
+                  <occurrences minimum="0" maximum="1"/>
+                </input>
+              </items>
+            </option>
+          </options>
+        </option-set>
     </items>
     </field-set>
     <field-set name="advanced">
