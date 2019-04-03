@@ -1,6 +1,6 @@
 <part>
   <display-name>Form view</display-name>
-  <config>
+  <form>
     <field-set name="form">
       <label>Form</label>
       <items>
@@ -14,5 +14,5 @@
         </input>
       </items>
     </field-set>
-</config>
+  </form>
 </part>

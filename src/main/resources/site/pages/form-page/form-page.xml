@@ -1,6 +1,6 @@
 <page>
   <display-name>Formbuilder empty test page</display-name>
-  <config/>
+  <form/>
   <regions>
     <region name="main"/>
   </regions>

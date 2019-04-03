@@ -9,7 +9,7 @@ The app was originally a fork of [XP Form Builder by Vegard Haugstvedt](https://
 There are three ways to install this app:
 
 * First alternative is to open the Enonic XP Applications admin tool. In here select "Install" and find this app in the Market list of available apps.
-* Second alternative is to simply download the app [JAR file](http://repo.enonic.com/public/com/enonic/app/formbuilder/1.0.0/app-formbuilder-1.0.0.jar) and move it to the XP installation's `$XP_HOME/deploy` folder.
+* Second alternative is to simply download the app [JAR file](http://repo.enonic.com/public/com/enonic/app/formbuilder/2.0.0/app-formbuilder-2.0.0.jar) and move it to the XP installation's `$XP_HOME/deploy` folder.
 * Or you can build this app with gradle. First, download the zip file of this repo. Unpack it locally. In the terminal, from the root of the project, type `./gradlew build`. On Windows, just type `gradlew build`. Next, move the JAR file from `build/libs` to your `$XP_HOME/deploy` directory. The Form Buider app will now be available to add to your websites through the Content Studio admin tool in Enonic XP.
 
 If you are upgrading to a newer version of this app by any other means than the Applications admin tool described above, make sure to remove the old version's JAR file from the `$XP_HOME/deploy` directory.
@@ -64,7 +64,7 @@ If you need access to form response data at a more individual level without runn
 ## Development instructions
 
 ### Prerequisites
-* Install Enonic XP 6.13.0 or above
+* Install Enonic XP 7.0.0 or above
 * Set the XP_HOME variable to point to your Enonic home folder.
 
 ### Deployment
@@ -74,12 +74,17 @@ If you need access to form response data at a more individual level without runn
 
 | Version        | XP version |
 | ------------- | ------------- |
+| 2.0.0 | 7.0.0 |
 | 1.1.0 | 6.13.0 |
 | 1.0.0 | 6.13.0 |
 
-**Important!** This App is not backwards compatible with any XP version before 6.13.
+**Important!** This App is not backwards compatible with any XP version before 7.0.0.
 
 ## Changelog
+
+### Version 2.0.0
+
+* Upgraded app to be XP 7.0 compatible
 
 ### Version 1.1.0
 

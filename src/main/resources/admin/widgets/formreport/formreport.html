@@ -1,7 +1,7 @@
-<body>
+<widget>
     <p data-th-unless="${isForm}">Select a content of type Form in the content hierarchy. (You currently have selected <em>something</em>, but it is a [[${content.type}]], not a Form belonging to this app)<br/></p>
     <p data-th-if="${isForm}" data-th-unless="${hasResponses}">The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
-    <form data-th-if="${isForm and hasResponses}" data-th-id="'formreportid_' + ${uid}" data-th-action="${actionUrl}" method="get">
+    <form data-th-if="${isForm and hasResponses}" data-th-id="'formreportid_' + ${widgetId}" data-th-action="${actionUrl}" method="get">
         <fieldset class="form-block columns">
             <legend><h4>Form response report</h4></legend>
             <br/>
@@ -66,4 +66,4 @@
             </div>
         </div>
     </form>
-</body>
+</widget>

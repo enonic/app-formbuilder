@@ -2,6 +2,7 @@
 <widget>
   <display-name>Form report</display-name>
   <interfaces>
-    <interface>com.enonic.xp.content-manager.context-widget</interface>
+    <interface>contentstudio.contextpanel</interface>
+    <description>Form report widget</description>
   </interfaces>
 </widget>

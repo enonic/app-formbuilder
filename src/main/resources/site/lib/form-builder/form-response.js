@@ -4,7 +4,7 @@ var mail = require('/lib/xp/mail'); // Import the mail functions
 var nodeLib = require('/lib/xp/node'); // Import the node functions
 var portal = require('/lib/xp/portal'); // Import the portal functions
 var repo = require('/lib/xp/repo'); // Import the repo functions
-var util = require('/lib/enonic/util/data'); // Import the enonic util functions
+var util = require('/lib/util/data'); // Import the enonic util functions
 
 var CheckboxInputMapper = require('/lib/form-builder/mapper/checkbox-input-mapper');
 

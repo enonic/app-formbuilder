@@ -1,10 +1,9 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
-//var thymeleaf = require('/lib/thymeleaf');
-var thymeleaf = require('/lib/xp/thymeleaf');
+var thymeleaf = require('/lib/thymeleaf');
 var ioLib = require('/lib/xp/io');
 var nodeLib = require('/lib/xp/node');
-var util = require('/lib/enonic/util/data');
+var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
 var view = resolve('formreport.html');
@@ -13,10 +12,17 @@ var view = resolve('formreport.html');
 var css = ioLib.readText(cssFile.getStream());*/
 
 function handleGet(req) {
-    var uid = req.params.uid;
     var contentId = req.params.contentId;
-    if (!contentId) {
+
+    if (!contentId && portalLib.getContent()) {
         contentId = portalLib.getContent()._id;
+    }
+
+    if (!contentId) {
+        return {
+            contentType: 'text/html',
+            body: '<widget class="error">No content selected</widget>'
+        };
     }
 
     var content = contentLib.get({
@@ -26,7 +32,7 @@ function handleGet(req) {
     var isForm = (content.type === app.name + ':form');
 
     var model = {
-        uid: uid,
+        widgetId: app.name,
         content: content,
         isForm: isForm,
         actionUrl: portalLib.serviceUrl({ service: 'formreport' }),
