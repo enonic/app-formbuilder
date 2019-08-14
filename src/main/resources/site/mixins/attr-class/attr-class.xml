@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Class</display-name>
-  <items>
+  <form>
     <input name="class" type="TextLine">
       <label>Class</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Add a class to the input element, to help override CSS-styling. Follow instructions from your IT-department on whether to use this or not.</help-text>
     </input>
-  </items>
+  </form>
 </mixin>

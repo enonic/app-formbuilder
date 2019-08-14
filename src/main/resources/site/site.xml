@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-  <config>
+  <form>
     <field-set name="basic">
       <label>Basic required settings</label>
       <items>
@@ -18,10 +18,10 @@
           <config>
             <option value="none">Minimal: No storage, only send the data by e-mail</option>
             <option value="formbuilderRepo">Regular: Also store the data on the server, but only available in reports</option>
-            <option value="cmsRepo">Full: Data is stored as content underneath the form in Content Studio</option>
+            <!--option value="cmsRepo">Full: Data is stored as content underneath the form in Content Studio</option-->
           </config>
           <default>formbuilderRepo</default>
-          <help-text>If "Minimal" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. "Regular" and "Full" will enable running reports with the widget. "Full" provides the most control over the data but might fill up Content Studio with thousands of form responses if a form is popular and the responses are not removed periodically.</help-text>
+          <help-text>If "Minimal" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. "Regular" and "Full" will enable running reports with the widget.</help-text>
         </input>
         <input type="RadioButton" name="style">
           <label>Form style</label>
@@ -31,7 +31,7 @@
             <!--option value="xp-formbuilder">XP Formbuilder</option-->
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>
-          <default>inherit</default>
+          <default>bootstrap</default>
           <help-text>Select global styling for forms generated with the formbuilder app. If "Browser default" is used, no extra style sheet is loaded with the page, and the browser uses whatever CSS styling has been applied to the page for that type of HTML markup. "Twitter Bootstrap" currently uses v.3.3.5.</help-text>
         </input>
       </items>
@@ -51,27 +51,32 @@
             </input>
         </items>
     </field-set>
-    <item-set name="proxy">
-      <label>Proxy</label>
-      <occurrences minimum="0" maximum="1"/>
-      <items>
-        <input name="host" type="TextLine">
-          <label>Host</label>
-          <occurrences minimum="1" maximum="1"/>
-        </input>
-        <input name="port" type="TextLine">
-          <label>Port</label>
-          <occurrences minimum="0" maximum="1"/>
-        </input>
-        <input name="user" type="TextLine">
-          <label>User</label>
-          <occurrences minimum="0" maximum="1"/>
-        </input>
-        <input name="password" type="TextLine">
-          <label>Password</label>
-          <occurrences minimum="0" maximum="1"/>
-        </input>
-      </items>
-    </item-set><!-- proxy -->
-  </config>
+    <field-set name="proxySettings">
+        <label>Proxy settings</label>
+        <items>
+            <item-set name="proxy">
+              <label>Proxy</label>
+              <occurrences minimum="0" maximum="1"/>
+              <items>
+                <input name="host" type="TextLine">
+                  <label>Host</label>
+                  <occurrences minimum="1" maximum="1"/>
+                </input>
+                <input name="port" type="TextLine">
+                  <label>Port</label>
+                  <occurrences minimum="0" maximum="1"/>
+                </input>
+                <input name="user" type="TextLine">
+                  <label>User</label>
+                  <occurrences minimum="0" maximum="1"/>
+                </input>
+                <input name="password" type="TextLine">
+                  <label>Password</label>
+                  <occurrences minimum="0" maximum="1"/>
+                </input>
+              </items>
+            </item-set>
+        </items>
+    </field-set>
+  </form>
 </site>

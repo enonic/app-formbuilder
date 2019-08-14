@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Min (double)</display-name>
-  <items>
+  <form>
     <input name="min" type="Double">
       <label>Minimum value</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Add a minimum value. This will limit user input not be below the specified value.</help-text>
     </input>
-  </items>
+  </form>
 </mixin>
