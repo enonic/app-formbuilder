@@ -1,5 +1,6 @@
 <content-type>
   <display-name>Form</display-name>
+  <description>Input configuration and web form setup</description>
   <super-type>base:structured</super-type>
   <form>
     <field-set name="elements">
@@ -18,9 +19,9 @@
         <item-set name="inputs">
           <label>Input field</label>
           <items>
-              <inline mixin="attr-label"/>
+              <mixin name="attr-label"/>
               <!--mixin name="attr-title"/-->
-              <inline mixin="attr-required"/>
+              <mixin name="attr-required"/>
               <option-set name="input">
                   <label>Type and config</label>
                   <expanded>false</expanded>
@@ -29,60 +30,60 @@
                     <option name="text">
                       <label>Text line</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-value"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-value"/>
                       </items>
                     </option>
                     <option name="textarea">
                       <label>Text area</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-value"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-value"/>
                       </items>
                     </option>
                     <option name="email">
                       <label>E-mail</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
+                          <mixin name="attr-placeholder"/>
                           <!-- TODO: checkbox for include data copy, ++ -->
                       </items>
                     </option>
                     <option name="checkbox">
                       <label>Checkbox</label>
                       <items>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="checkboxes">
                       <label>Checkboxes group</label>
                       <items>
-                          <inline mixin="attr-options-radio"/>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-options-radio"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="radio">
                       <label>Radio buttons</label>
                       <items>
-                          <inline mixin="attr-options-radio"/>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-options-radio"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                     <option name="select">
                       <label>Dropdown menu</label>
                       <items>
-                          <inline mixin="attr-placeholder"/>
-                          <inline mixin="attr-options-radio"/>
+                          <mixin name="attr-placeholder"/>
+                          <mixin name="attr-options-radio"/>
                       </items>
                     </option>
                     <option name="file">
                       <label>File</label>
                       <items>
-                          <inline mixin="attr-title"/>
+                          <mixin name="attr-title"/>
                       </items>
                     </option>
                   </options>
               </option-set>
-              <inline mixin="attr-name"/>
+              <mixin name="attr-name"/>
             <!--input name="input" type="ContentSelector">
                 <label>Input fields</label>
                 <occurrences minimum="1" maximum="1"/>
@@ -259,7 +260,7 @@
         </option-set>
     </items>
     </field-set>
-    <field-set name="advanced">
+    <!--field-set name="advanced">
       <label>Advanced settings</label>
       <items>
         <input type="TextLine" name="actionUrl">
@@ -283,7 +284,7 @@
           <default>checked</default>
           <help-text>Only uncheck when the user should be sent to the target page upon submitting the form. An example of when this is useful is a search form, where the user should arrive at a result-page.</help-text>
         </input>
-        <!--input type="ComboBox" name="style">
+        <input type="ComboBox" name="style">
           <label>Style</label>
           <occurrences minimum="0" maximum="1"/>
           <config>
@@ -292,8 +293,8 @@
             <option value="bootstrap">Twitter Bootstrap</option>
           </config>
           <help-text>Select which styling to apply. If "Browser default" is used, no style sheet is loaded for the form application, and you have full control over the form styling. "Twitter Bootstrap" currently uses v.3.3.5. "XP Formbuilder" is an extra example.</help-text>
-      </input-->
+      </input>
       </items>
-    </field-set>
+  </field-set-->
   </form>
 </content-type>

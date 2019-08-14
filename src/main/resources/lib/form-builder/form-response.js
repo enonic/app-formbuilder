@@ -100,7 +100,7 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
             name: attachment.name
           });
         }),
-        contentType: attachment.contentType
+        mimeType: attachment.contentType
       });
       if (!formData[attachment.inputId]) formData[attachment.inputId] = { attachments: [] };
       formData[attachment.inputId].attachments.push({
@@ -117,6 +117,7 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
       });
     }
   }
+  log.info(JSON.stringify(emailAttachments));
   var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
   // TODO: try switching execution order with line above, or better: run asyncronously somehow
   if (siteConfig.storageLocation !== 'none') {
@@ -147,7 +148,7 @@ var saveForm = function(form, siteConfig, request, responseFolder) {
     Disabled until the full list of HTML entities has been documented so that it can be reversed upon report generation, e.g. revert all @ chars converted to &#64;
     It seems like the "&\+<=>@ characters are the ones in question? Source: https://github.com/OWASP/java-html-sanitizer/issues/84
     doublequote &#34;, et &amp;, backslash \\, backslashspace \\ , doublespace  , plus &#43;, lessthan &lt;, equals &#61;, greaterthan &gt;, at &#64;
-    
+
   for (var key in form) {
     if (form.hasOwnProperty(key) && typeof form[key] === 'string') {
         form[key] = portal.sanitizeHtml(form[key]);

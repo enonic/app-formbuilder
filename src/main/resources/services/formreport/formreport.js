@@ -1,7 +1,7 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var nodeLib = require('/lib/xp/node');
-var util = require('/lib/enonic/util/data');
+var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
 function createCSV(responses, formContent, separator) {

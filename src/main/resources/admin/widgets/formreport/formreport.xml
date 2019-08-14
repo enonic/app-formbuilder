@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget>
   <display-name>Form report</display-name>
+  <description>Export responses to CSV file</description>
   <interfaces>
     <interface>contentstudio.contextpanel</interface>
-    <description>Form report widget</description>
   </interfaces>
 </widget>

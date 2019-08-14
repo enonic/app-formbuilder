@@ -1,11 +1,11 @@
 <mixin>
   <display-name>Attr: Step</display-name>
-  <items>
+  <form>
     <input name="step" type="Double">
       <label>Step</label>
       <occurrences minimum="0" maximum="1"/>
       <config/>
       <help-text>[Optional] Set the interval between the values that can be selected.</help-text>
     </input>
-  </items>
+  </form>
 </mixin>
