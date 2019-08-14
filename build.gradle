@@ -22,6 +22,7 @@ dependencies {
     include "com.enonic.xp:lib-node:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-repo:${xpVersion}"
+    include "com.enonic.xp:lib-cluster:${xpVersion}"
     include "com.enonic.lib:lib-thymeleaf:2.0.0-B1"
     include 'com.enonic.lib:lib-http-client:2.0.0-B1'
     include 'com.enonic.lib:lib-util:2.0.0-B1'

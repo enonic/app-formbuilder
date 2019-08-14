@@ -117,7 +117,7 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
       });
     }
   }
-  log.info(JSON.stringify(emailAttachments));
+
   var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
   // TODO: try switching execution order with line above, or better: run asyncronously somehow
   if (siteConfig.storageLocation !== 'none') {
