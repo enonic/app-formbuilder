@@ -77,19 +77,26 @@ If you need access to form response data at a more individual level without runn
 |Version
 |XP version
 
-|1.0.0
-|6.13.0
+|2.0.1
+|7.1.0
+
+|2.0.0
+|7.0.0
 
 |1.1.0
 |6.13.0
 
-|2.0.0
-|7.0.0
+|1.0.0
+|6.13.0
 |===
 
 *Important!* This App is not backwards compatible with any XP version before 7.0.0.
 
 == Changelog
+
+=== Version 2.0.1
+
+* Fixed an error where e-mails with attachments were not sent
 
 === Version 2.0.0
 

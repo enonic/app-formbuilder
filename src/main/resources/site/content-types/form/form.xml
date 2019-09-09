@@ -75,13 +75,12 @@
                           <mixin name="attr-options-radio"/>
                       </items>
                     </option>
-                    <!-- Disabled until it's possible to send e-mails with attachments again (not possible at the moment of upgrading to 7.0, due to error inside lib-mail) -->
-                    <!--option name="file">
+                    <option name="file">
                       <label>File</label>
                       <items>
                           <mixin name="attr-title"/>
                       </items>
-                    </option-->
+                    </option>
                   </options>
               </option-set>
               <mixin name="attr-name"/>
