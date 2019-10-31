@@ -21,6 +21,7 @@ dependencies {
     include "com.enonic.xp:lib-mail:${xpVersion}"
     include "com.enonic.xp:lib-node:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-repo:${xpVersion}"
     include "com.enonic.xp:lib-cluster:${xpVersion}"
     include "com.enonic.lib:lib-thymeleaf:2.0.0-B1"

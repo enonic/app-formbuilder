@@ -3,6 +3,7 @@ var portalLib = require('/lib/xp/portal');
 var thymeleaf = require('/lib/thymeleaf');
 var ioLib = require('/lib/xp/io');
 var nodeLib = require('/lib/xp/node');
+var authLib = require('/lib/xp/auth');
 var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
@@ -30,6 +31,30 @@ function handleGet(req) {
         branch: 'draft'
     });
     var isForm = (content.type === app.name + ':form');
+
+    var userHasWritePermissions = false;
+    var contentPermissions = contentLib.getPermissions({
+        key: contentId
+    });
+    var principalsWhoMayWrite = util.forceArray(contentPermissions.permissions).map(function (permission) {
+        if (permission.allow.indexOf('WRITE_PERMISSIONS') >= 0 || permission.deny.indexOf('WRITE_PERMISSIONS') < 0) {
+            return permission.principal;
+        }
+    });
+    principalsWhoMayWrite.forEach(function (principal) {
+        if (principal.startsWith('role:')) {
+            var role = principal.substring(5);
+            if (authLib.hasRole(role)) {
+                userHasWritePermissions = true;
+            }
+        }
+    });
+    if (!userHasWritePermissions) {
+        return {
+            contentType: 'text/html',
+            body: '<widget class="error">No permission to create reports for this content.</widget>'
+        };
+    }
 
     var model = {
         widgetId: app.name,
