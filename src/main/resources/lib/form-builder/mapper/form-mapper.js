@@ -29,7 +29,8 @@ exports.map = function (formConfig) {
     .setSubmitText(_getSubmitText(formConfig))
     .setActionUrl(_getActionUrl(formConfig))
     .setSubmitMethod(_getSubmitMethod(formConfig))
-    .setUsingAjax(formConfig.useAjax);
+    //.setUsingAjax(formConfig.useAjax);
+    .setUsingAjax(true);
 
   LIST_UTIL.iterateSafely(formConfig.inputs, function(item) {
     /*
@@ -60,7 +61,8 @@ var _getActionUrl = function(formConfig) {
 };
 
 var _getSubmitMethod = function(formConfig) {
-  return (formConfig.submitText) ? formConfig.submitText : "post";
+  //return (formConfig.submitText) ? formConfig.submitText : "post";
+  return "post";
 };
 
 var _mapInputField = function(inputConfig) {
