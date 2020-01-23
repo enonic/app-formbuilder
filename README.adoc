@@ -77,6 +77,9 @@ If you need access to form response data at a more individual level without runn
 |Version
 |XP version
 
+|2.0.2
+|7.1.0
+
 |2.0.1
 |7.1.0
 
@@ -93,6 +96,12 @@ If you need access to form response data at a more individual level without runn
 *Important!* This App is not backwards compatible with any XP version before 7.0.0.
 
 == Changelog
+
+=== Version 2.0.2
+
+* Only allow users with write permissions to create form reports
+* Avoid sending form-data FROM user's e-mail address (use replyTo instead)
+* Force forms to be submitted as AJAX post requests
 
 === Version 2.0.1
 
