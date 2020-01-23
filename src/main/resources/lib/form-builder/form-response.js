@@ -345,14 +345,18 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
 
   // Send e-mail to subscribers
   if (formConfig.emailSubscribers) {
-    return mail.send({
-      from: userEmailAddr || systemEmailAddr || 'noreply@example.com',
+    var mailParams = {
+      from: systemEmailAddr || 'noreply@example.com',
       to: util.forceArray(formConfig.emailSubscribers),
       subject: subject,
       body: '<code>' + formDataBeautified + '</code>',
       attachments: emailAttachments,
       contentType: 'text/html; charset="UTF-8"'
-    });
+    };
+    if (userEmailAddr) {
+      mailParams.replyTo = userEmailAddr;
+    }
+    return mail.send(mailParams);
   } else {
     return false;
   }
