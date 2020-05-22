@@ -11,13 +11,38 @@ function createCSV(responses, formContent, separator) {
     var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
         return inputConfig.label;
     });
+    // Add extra column for the response timestamps
     fieldNames.push('[submitted timestamp]');
 
     // Add response data to easily accessible array object
     var responseData = [];
     responses.forEach(function (response) {
-        response.data._createdTime = response.createdTime;
-        responseData.push(response.data);
+        if (response.data) {
+            // Add submitted timestamp for response
+            response.data._createdTime = response.createdTime;
+
+            // Replace attachment metadata with downloadable links to the same attachments
+            Object.keys(response.data).forEach(function (key) {
+                if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
+                    util.forceArray(response.data[key].attachments).forEach(function (attachment, index) {
+                        // Only process the first attachment (model should only allow one per input anyway, but just to be safe)
+                        if (index === 0 && attachment.id && attachment.name) {
+                            // Replace attachment data with CSV hyperlink formatted as =HYPERLINK("https://enonic.com/file.pdf";"file.pdf")
+                            response.data[key] = '=HYPERLINK("' + portalLib.serviceUrl({
+                                service: 'formreport-filedl',
+                                type: 'absolute',
+                                params: {
+                                    formId: formContent._id,
+                                    fileId: attachment.id
+                                }
+                            }) +  '"' + separator + '"' + attachment.name + '")';
+                        }
+                    });
+                }
+            });
+
+            responseData.push(response.data);
+        }
     });
 
     // Function to prettify field values
@@ -114,6 +139,9 @@ function handleGet(req) {
         if (purge) {
             responses.forEach(function (response) {
                 // Delete related attachments
+                // DEACTIVATED until a good toggle is found in the download service for enabling/disabling deleting attachments after they have been downloaded.
+                // Currenly, the attachments need to remain in the system because they will always be downloaded manually AFTER the original form has been processed and/or deleted
+                /*
                 var relatedAttachmentIds = [];
                 Object.keys(response.data).forEach(function (key) {
                     if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
@@ -126,6 +154,7 @@ function handleGet(req) {
                     }
                 });
                 formbuilderRepo.delete(relatedAttachmentIds);
+                */
 
                 // Delete form response
                 formbuilderRepo.delete(response._id);

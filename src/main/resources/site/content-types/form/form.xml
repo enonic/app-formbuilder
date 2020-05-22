@@ -79,6 +79,11 @@
                       <label>File</label>
                       <items>
                           <mixin name="attr-title"/>
+                          <input name="accept" type="TextLine">
+                            <label>Only allow these file types</label>
+                            <occurrences minimum="0" maximum="1"/>
+                            <help-text>If empty: Allow any file type. Otherwise, this is a comma separated string for media types <br/>that should be allowed to upload. Use MIME types or file endings (wild cards with asterisk are supported). Example: application/pdf,image/*,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document</help-text>
+                          </input>
                       </items>
                     </option>
                   </options>
