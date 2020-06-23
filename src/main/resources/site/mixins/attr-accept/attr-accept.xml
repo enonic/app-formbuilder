@@ -1,11 +1,10 @@
 <mixin>
   <display-name>Attr: Accept</display-name>
   <form>
-    <input name="accept" type="TextLine">
-      <label>Accepted file types</label>
-      <occurrences minimum="0" maximum="0"/>
-      <config/>
-      <help-text>[Optional] Add a list of filetypes to accept. 'image/*', 'audio/*', 'video/*' or '.pdf' are some options. The full list of accepted options can be found here: www.iana.org/assignments/media-types/media-types.xhtml</help-text>
-    </input>
+      <input name="accept" type="Tag">
+        <label>Only allow these file types</label>
+        <occurrences minimum="0" maximum="0"/>
+        <help-text>If empty: Allow any file type. Otherwise, list the media types that should be allowed to upload. Use MIME types or file endings (wild cards with asterisk are supported). Examples: application/pdf, image/*, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document</help-text>
+      </input>
   </form>
 </mixin>

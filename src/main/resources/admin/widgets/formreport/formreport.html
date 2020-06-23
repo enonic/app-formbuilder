@@ -2,70 +2,74 @@
     <section style="margin:1em">
         <p data-th-unless="${isForm}">Select a content of type Form in the content hierarchy. (You currently have selected <em>something</em>, but it is a [[${content.type}]], not a Form belonging to this app)<br/></p>
         <p data-th-if="${isForm}" data-th-unless="${hasResponses}">The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
-        <form data-th-if="${isForm and hasResponses}" data-th-id="'formreportid_' + ${widgetId}" data-th-action="${actionUrl}" method="get" autocomplete="off">
-            <fieldset class="form-block columns">
-                <legend><h4>Form response report</h4></legend>
-                <br/>
-                <div class="form-group">
-                    <p>The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
-                    <div class="form-group-label">
-                        <label for="fromDate">
-                            <span>First date to include</span>
-                        </label>
+        <div data-th-if="${isForm and hasResponses}">
+            <form id="formreport-form" data-th-action="${actionUrl}" method="get" autocomplete="off" target="_blank">
+                <fieldset class="form-block columns">
+                    <legend><h4>Form response report</h4></legend>
+                    <br/>
+                    <div class="form-group">
+                        <p>The selected form has <strong>[[${numResponses}]]</strong> stored responses in the repository.<br/><br/></p>
+                        <div class="form-group-label">
+                            <label for="formreport-fromDate">
+                                <span>First date to include</span>
+                            </label>
+                        </div>
+                        <input class="input-field mod-empty-field-button" type="date" name="fromDate" id="formreport-fromDate"
+                            data-th-value="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
+                            data-th-min="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
+                            data-th-max="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"/>
                     </div>
-                    <input class="input-field mod-empty-field-button" type="date" name="fromDate" id="fromDate"
-                        data-th-value="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
-                        data-th-min="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
-                        data-th-max="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"/>
-                </div>
-                <br/>
-                <div class="form-group">
-                    <div class="form-group-label">
-                        <label for="toDate">
-                            <span>Last date to include</span>
-                        </label>
+                    <br/>
+                    <div class="form-group">
+                        <div class="form-group-label">
+                            <label for="formreport-toDate">
+                                <span>Last date to include</span>
+                            </label>
+                        </div>
+                        <input class="input-field mod-empty-field-button" type="date" name="toDate" id="formreport-toDate"
+                            data-th-value="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"
+                            data-th-min="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
+                            data-th-max="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"/>
                     </div>
-                    <input class="input-field mod-empty-field-button" type="date" name="toDate" id="toDate"
-                    data-th-value="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"
-                    data-th-min="${oldestCreatedDate} ? ${oldestCreatedDate} : ${'1970-01-01'}"
-                    data-th-max="${newestCreatedDate} ? ${newestCreatedDate} : ${currentDate}"/>
-                </div>
-                <br/>
-                <div class="form-group">
-                    <div class="form-group-label">
-                        <label for="separator">
-                            <span>CSV field separator</span>
-                        </label>
+                    <br/>
+                    <div class="form-group">
+                        <div class="form-group-label">
+                            <label for="formreport-format">
+                                <span>Export format</span>
+                            </label>
+                        </div>
+                        <select class="input-field mod-empty-field-button" name="format" id="formreport-format" style="-webkit-appearance:menulist;-moz-appearance:menulist;">
+                            <option selected="selected" value="html">HTML page</option>
+                            <option value="csv-sc">CSV file (semicolon, Euro standard)</option>
+                            <option value="csv-c">CSV file (comma, U.S. standard)</option>
+                            <option value="csv-no">CSV file (Norwegian Excel compatible)</option>
+                        </select>
                     </div>
-                    <select class="input-field mod-empty-field-button" name="separator" id="separator" style="-webkit-appearance:menulist;-moz-appearance:menulist;">
-                        <option selected="selected" value=";">Semicolon (Euro standard)</option>
-                        <option value=",">Comma (U.S. standard)</option>
-                    </select>
-                </div>
-                <br/>
-                <div class="form-group">
-                    <div class="form-group-label">
-                        <label for="purge">
-                            <input class="input-field" type="checkbox" name="purge" id="purge" style="-webkit-appearance:checkbox;-moz-appearance:checkbox;"/><span> Delete the exported form responses</span>
-                        </label>
+                    <br/>
+                    <div class="form-group">
+                        <div class="form-group-label">
+                            <label for="formreport-purge">
+                                <input class="input-field" type="checkbox" name="purge" id="formreport-purge" style="-webkit-appearance:checkbox;-moz-appearance:checkbox;"/><span> Delete the exported form responses</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <br/>
-                <!--div class="form-group">
-                    <div class="form-group-label">
-                        <label for="title">
-                            <span>Report Name</span>
-                        </label>
+                    <br/>
+                    <!--div class="form-group">
+                        <div class="form-group-label">
+                            <label for="formreport-title">
+                                <span>Report Name</span>
+                            </label>
+                        </div>
+                        <input class="input-field mod-empty-field-button" type="text" name="title" id="formreport-title">
+                    </div-->
+                    <input type="hidden" name="filename" data-th-value="${filename}"/>
+                    <input type="hidden" name="formContentId" data-th-value="${content._id}"/>
+                    <input type="hidden" name="repoId" data-th-value="${repoId}"/>
+                    <div>
+                        <button id="formreport-submit" type="submit" class="button" value="Submit">Create report</button>
                     </div>
-                    <input class="input-field mod-empty-field-button" type="text" name="title" id="title">
-                </div-->
-                <input type="hidden" name="filename" data-th-value="${filename}"/>
-                <input type="hidden" name="formContentId" data-th-value="${content._id}"/>
-                <input type="hidden" name="repoId" data-th-value="${repoId}"/>
-                <div>
-                    <button class="button" value="Submit">Generate CSV file</button>
-                </div>
-            </div>
-        </form>
+                </fieldset>
+            </form>
+        </div>
     </section>
 </widget>

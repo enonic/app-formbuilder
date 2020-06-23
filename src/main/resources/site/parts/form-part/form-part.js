@@ -1,9 +1,9 @@
-var portal = require('/lib/xp/portal'); // Import the portal functions
-var thymeleaf = require('/lib/thymeleaf'); // Import the Thymeleaf rendering function
-var contentLib = require('/lib/xp/content'); // Import the content library
+var portal = require('/lib/xp/portal');
+var thymeleaf = require('/lib/thymeleaf');
+var contentLib = require('/lib/xp/content');
 var recaptcha = require('/lib/recaptcha');
 
-var moment = require('/lib/moment.min.js'); // Import Moment.js
+var moment = require('/lib/moment.min.js');
 
 var FormMapper = require('/lib/form-builder/mapper/form-mapper');
 var FormResponse = require('/lib/form-builder/form-response');
@@ -115,6 +115,7 @@ exports.get = function(request) {
     // Return the merged view and model in the response object
     return {
         body: thymeleaf.render(view, model),
+        contentType: 'text/html',
         pageContributions: {
             headBegin: styleConfig[style].css ? ['<link rel="stylesheet" href="' + createCssUrl(style) + '"/>'] : [''],
             headEnd: [

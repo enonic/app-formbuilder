@@ -33,7 +33,8 @@ function handleGet(req) {
     }
 
     return {
-        body: 'Invalid URL: ' + req.url
-    }
+        contentType: 'text/html',
+        body: '<!DOCTYPE html><html lang="en"><title>Invalid URL</title><body><p>Invalid URL: ' + req.url + '<p></body></html>'
+    };
 }
 exports.get = handleGet;

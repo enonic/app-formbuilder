@@ -70,6 +70,10 @@ var XP_FORM_BUILDER = {
     var inputElements = form.getElementsByClassName("xp-input");
     for (var i = 0; i < inputElements.length; i++) inputElements[i].disabled = true;
     form.getElementsByClassName("xp-submit")[0].disabled = true;
+    var spinner = document.getElementById('xp-formbuilder-spinner');
+    if (spinner && spinner.getAttribute("style")) {
+        spinner.setAttribute("style", spinner.getAttribute("style").replace("display:none;", ""));
+    }
     form.className = (form.className) ? form.className + " xp-submitting" : "xp-submitting";
   },
   prepareFormData: function(inputFields) {

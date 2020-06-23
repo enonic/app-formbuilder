@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head><title>Form builder response</title></head>
+    <body>
+        <h1>Form builder response</h1>
+        <h2>File attachment download links</h2>
+        <ul>
+            <li data-th-unless="${files}">[no files]</li>
+            <th:block data-th-if="${files}">
+                <li data-th-each="file : ${files}">
+                    <a data-th-href="${file.url}" data-th-text="${file.name}"></a>
+                </li>
+            </th:block>
+        </ul>
+        <h2>Raw data summary</h2>
+        <pre><code data-th-text="${formDataAsJsonString}"></code></pre>
+    </body>
+</html>

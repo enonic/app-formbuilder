@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Form Builder report</title>
+        <style type="text/css">
+            th, td {
+                padding: 0.6em 1em;
+                border: 1px solid #eee;
+            }
+            tr:nth-child(2n) td, th {
+                background-color: #eee;
+            }
+            a {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th data-th-each="heading : ${headings}" data-th-text="${heading}"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-th-each="row : ${rows}">
+                    <td data-th-each="cell : ${row.cells}">
+                        <th:block data-th-if="${cell.attachments}" data-th-each="attachment : ${cell.attachments}">
+                            <a data-th-href="${attachment.url}" data-th-text="${attachment.text}"></a>
+                        </th:block>
+                        <span data-th-if="${cell.value}" data-th-text="${cell.value}" data-th-remove="'tag'"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

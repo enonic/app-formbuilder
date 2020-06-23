@@ -1,10 +1,12 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var nodeLib = require('/lib/xp/node');
+var thymeleafLib = require('/lib/thymeleaf');
 var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
-function createCSV(responses, formContent, separator) {
+function createCSV(responses, formContent, format) {
+    var separator = (format === 'csv-sc' || format === 'csv-no') ? ';' : ',';
     var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
@@ -14,7 +16,7 @@ function createCSV(responses, formContent, separator) {
     // Add extra column for the response timestamps
     fieldNames.push('[submitted timestamp]');
 
-    // Add response data to easily accessible array object
+    // Add processed response data to easily accessible array object
     var responseData = [];
     responses.forEach(function (response) {
         if (response.data) {
@@ -24,20 +26,24 @@ function createCSV(responses, formContent, separator) {
             // Replace attachment metadata with downloadable links to the same attachments
             Object.keys(response.data).forEach(function (key) {
                 if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
-                    util.forceArray(response.data[key].attachments).forEach(function (attachment, index) {
-                        // Only process the first attachment (model should only allow one per input anyway, but just to be safe)
-                        if (index === 0 && attachment.id && attachment.name) {
-                            // Replace attachment data with CSV hyperlink formatted as =HYPERLINK("https://enonic.com/file.pdf";"file.pdf")
-                            response.data[key] = '=HYPERLINK("' + portalLib.serviceUrl({
-                                service: 'formreport-filedl',
-                                type: 'absolute',
-                                params: {
-                                    formId: formContent._id,
-                                    fileId: attachment.id
-                                }
-                            }) +  '"' + separator + '"' + attachment.name + '")';
+                    var inputAttachmentNames = [];
+                    util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                        if (attachment.id && attachment.name) {
+                            inputAttachmentNames.push(attachment.name);
                         }
                     });
+                    if (inputAttachmentNames.length) {
+                        var hyperlinkCommand = format === 'csv-no' ? 'HYPERKOBLING' : 'HYPERLINK';
+                        // Cell format: =HYPERLINK("https://mysite.com/_/service/app.name/formreport-filedl?fileId=<FILE_ID>&formResponseId=<FORM_RESPONSE_ID>";"File1.jpg, File2.pdf")
+                        response.data[key] = '=' + hyperlinkCommand + '("' + portalLib.serviceUrl({
+                            service: 'formreport-singleresponse',
+                            type: 'absolute',
+                            params: {
+                                formId: formContent._id,
+                                formResponseId: response._id
+                            }
+                        }) + '"' + separator + '"' + inputAttachmentNames.join(', ') + '")';
+                    }
                 }
             });
 
@@ -71,8 +77,122 @@ function createCSV(responses, formContent, separator) {
     return csv.join('\r\n').replace(/\\"/gm, '""');
 }
 
+function createModelForHTML(responses, formContent) {
+    var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+        return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
+    });
+    var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+        return inputConfig.label;
+    });
+
+    // Add extra column for the response timestamps
+    fieldNames.push('[submitted timestamp]');
+
+    // Function to prettify field values
+    var replacer = function(key, value) {
+        if (value && typeof value === 'string') {
+            // Convert whitespace to merged single space
+            return value.replace(/[\s]+/gm, ' ');
+        }
+        if (value === null) {
+            return ''
+        }
+        return value;
+    };
+
+    // Add processed response data to easily accessible array object
+    var responseData = [];
+    responses.forEach(function (response) {
+        if (response.data) {
+            // Add submitted timestamp for response
+            response.data._createdTime = response.createdTime;
+
+            // Process each response value into a cell value
+            Object.keys(response.data).forEach(function (key) {
+                var cell = {};
+
+                // Replace attachment metadata with downloadable links to the same attachments
+                if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
+                    cell.attachments = [];
+                    util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                        if (attachment.id && attachment.name) {
+                            cell.attachments.push({
+                                text: attachment.name,
+                                url: portalLib.serviceUrl({
+                                    service: 'formreport-filedl',
+                                    type: 'absolute',
+                                    params: {
+                                        formId: formContent._id,
+                                        fileId: attachment.id
+                                    }
+                                })
+                            });
+                        }
+                    });
+                } else {
+                    cell = {
+                        value: response.data[key]
+                    }
+                }
+
+                // TODO: this might be wrong!
+                responseData.push(cell);
+            });
+        }
+    });
+
+    // Generate rows of responses
+    var rows = responses.map(function (response) {
+        var row = {
+            // Process cells in orrder according to form definition (fieldReferences array)
+            cells: fieldReferences.map(function (fieldRef) {
+                var field = response.data[fieldRef];
+                var cell = {};
+
+                // Replace attachment metadata with downloadable links to the same attachments
+                if (field && typeof field == 'object' && field.attachments) {
+                    cell.attachments = [];
+                    util.forceArray(field.attachments).forEach(function (attachment) {
+                        if (attachment.id && attachment.name) {
+                            cell.attachments.push({
+                                text: attachment.name,
+                                url: portalLib.serviceUrl({
+                                    service: 'formreport-filedl',
+                                    type: 'absolute',
+                                    params: {
+                                        formId: formContent._id,
+                                        fileId: attachment.id
+                                    }
+                                })
+                            });
+                        }
+                    });
+                } else {
+                    // Any other type of cell: Pass on the value with fallback to empty string if null or undefined
+                    cell = {
+                        value: field || ''
+                    }
+                }
+
+                return cell;
+            })
+        };
+        // createdTime added to last cell for this row
+        row.cells.push({
+            value: response.createdTime
+        });
+
+        return row;
+    });
+
+    return {
+        headings: fieldNames,
+        rows: rows
+    };
+}
+
 function handleGet(req) {
-    var separator = (req.params.separator && req.params.separator.trim()) ? req.params.separator.trim() : ';';
+    var format = (req.params.format && req.params.format.trim()) ? req.params.format.trim() : 'html';
     var filename = (req.params.filename && req.params.filename.trim()) ? req.params.filename.trim() : 'formbuilder-report.csv';
     var repoId = (req.params.repoId && req.params.repoId.trim()) ? req.params.repoId.trim() : 'com.enonic.formbuilder';
     var fromDate = (req.params.fromDate && req.params.fromDate.trim()) ? req.params.fromDate.trim() : null;
@@ -129,7 +249,15 @@ function handleGet(req) {
             responses.push(formbuilderRepo.get(hit.id));
         });
 
-        csv = createCSV(responses, formContent, separator);
+        if (format === 'html') {
+            return {
+                body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent)),
+                contentType: 'text/html'
+            }
+
+        } else {
+            csv = createCSV(responses, formContent, format, format);
+        }
 
         // Add byte order mark for automatic UTF-8 recognition in Excel 2013 (and later) for Windows
         // source: http://stackoverflow.com/questions/6002256

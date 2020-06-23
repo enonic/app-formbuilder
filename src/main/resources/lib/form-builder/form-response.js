@@ -106,6 +106,10 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
       formData[attachment.inputId].attachments.push({
         id: attachment.id,
         name: attachment.name,
+        // This attachmentUrl is a remnant of old code and probably doesn't work due to
+        // 1: lacking the correct server context
+        // 2: attachmentUrl only works in cms-repo and possibly only master branch
+        // Should be re-written to use download service
         url: runAsSu(
             (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
             function() {
@@ -113,7 +117,7 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
             id: attachment.id,
             download: true
           });
-        }) || ""
+        }) || ''
       });
     }
   }

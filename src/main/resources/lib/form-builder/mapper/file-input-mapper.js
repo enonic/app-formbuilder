@@ -17,7 +17,7 @@ function _getAcceptedFileTypes(inputConfig) {
   if (inputConfig.accept && inputConfig.accept.length !== 0) {
     var acceptedFileTypes = "";
     LIST_UTIL.iterateSafely(inputConfig.accept, function(acceptedFormat) {
-      if (acceptedFileTypes !== "") acceptedFileTypes += ";";
+      if (acceptedFileTypes !== "") acceptedFileTypes += ",";
       acceptedFileTypes += acceptedFormat;
     });
     return acceptedFileTypes;

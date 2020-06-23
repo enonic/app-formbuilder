@@ -2,9 +2,9 @@
   <display-name>Attr: Multiple</display-name>
   <form>
     <input name="multiple" type="CheckBox">
-      <label>Allow multiple?</label>
+      <label>Allow multiple files at once</label>
       <occurrences minimum="0" maximum="1"/>
-      <help-text>[Optional] Check to enable uploading multiple files.</help-text>
+      <help-text>When selected, users may drag-and-drop multiple files at once into this input, or they may select several files from within the same directory shown in their browser dialog.</help-text>
     </input>
   </form>
 </mixin>
