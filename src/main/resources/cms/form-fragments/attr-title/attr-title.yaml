@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Title"
+form:
+  - type: "TextLine"
+    name: "title"
+    label: "Help text as tooltip"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] This text is added as the title attribute of the input. By default, this text is shown as a tooltip when hovering the mouse above the input field."

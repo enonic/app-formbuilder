@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Accept"
+form:
+  - type: "Tag"
+    name: "accept"
+    label: "Only allow these file types"
+    occurrences:
+      min: 0
+      max: 0
+    helpText: "If empty: Allow any file type. Otherwise, list the media types that should be allowed to upload. Use MIME types or file endings (wild cards with asterisk are supported). Examples: application/pdf, image/*, .doc, .docx, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"

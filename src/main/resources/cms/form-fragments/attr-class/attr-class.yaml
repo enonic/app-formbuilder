@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Class"
+form:
+  - type: "TextLine"
+    name: "class"
+    label: "Class"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Add a class to the input element, to help override CSS-styling. Follow instructions from your IT-department on whether to use this or not."

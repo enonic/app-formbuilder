@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Value (double)"
+form:
+  - type: "Double"
+    name: "value"
+    label: "Default value"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Set the pre-defined/default value. Useful to set the normal/average value the user is assumed to choose."

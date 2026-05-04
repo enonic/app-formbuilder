@@ -1,0 +1,5 @@
+kind: "Application"
+title: "Form Builder"
+description: "Build simple web forms, send form data by e-mail, generate reports"
+vendorName: "Enonic AS"
+vendorUrl: "https://github.com/enonic"

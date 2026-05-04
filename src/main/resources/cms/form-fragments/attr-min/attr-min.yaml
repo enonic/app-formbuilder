@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Min (double)"
+form:
+  - type: "Double"
+    name: "min"
+    label: "Minimum value"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Add a minimum value. This will limit user input not be below the specified value."

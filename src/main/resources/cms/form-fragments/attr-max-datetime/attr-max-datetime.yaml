@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Max (datetime)"
+form:
+  - type: "DateTime"
+    name: "max"
+    label: "Maximum date and time"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Limit what the maximum date and time set can be."

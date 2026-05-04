@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Step"
+form:
+  - type: "Double"
+    name: "step"
+    label: "Step"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Set the interval between the values that can be selected."

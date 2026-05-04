@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Name"
+form:
+  - type: "TextLine"
+    name: "name"
+    label: "Technical name"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Use to customize the name attribute of the input field. This is used to identify the field, e.g. in the receiving system. If left empty, a URI encoded version of Label is used. In other words, characters that are not a-z, A-Z, 0-9, period, dash, or underscore may end up being URI encoded, e.g. \"two%20words\""

@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Min (date)"
+form:
+  - type: "Date"
+    name: "min"
+    label: "Minimum date"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Limit what the minimum date set can be."

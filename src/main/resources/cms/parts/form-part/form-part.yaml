@@ -1,0 +1,15 @@
+kind: "Part"
+title: "Form view"
+form:
+  - type: "FieldSet"
+    label: "Form"
+    items:
+      - type: "ContentSelector"
+        name: "form"
+        label: "Form source (default: current content)"
+        occurrences:
+          min: 0
+          max: 1
+        relationshipType: "system:reference"
+        allowContentType:
+          - "com.enonic.app.formbuilder:form"

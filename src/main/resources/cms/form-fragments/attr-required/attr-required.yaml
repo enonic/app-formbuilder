@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Required"
+form:
+  - type: "CheckBox"
+    name: "required"
+    label: "Required"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Set whether the input field is required. If it is, the user will not be able to submit without filling in a value."

@@ -1,0 +1,167 @@
+kind: "ContentType"
+title: "Form"
+description: "Input configuration and web form setup"
+superType: "base:structured"
+form:
+  - type: "FieldSet"
+    label: "Form elements"
+    items:
+      - type: "ItemSet"
+        name: "inputs"
+        label: "Input field"
+        occurrences:
+          min: 1
+          max: 0
+        items:
+          - type: "FormFragment"
+            name: "attr-label"
+          - type: "FormFragment"
+            name: "attr-required"
+          - type: "OptionSet"
+            name: "input"
+            label: "Type and config"
+            expanded: false
+            occurrences:
+              min: 1
+              max: 1
+            selection:
+              min: 1
+              max: 1
+            options:
+              - name: "text"
+                label: "Text line"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-placeholder"
+                  - type: "FormFragment"
+                    name: "attr-value"
+              - name: "textarea"
+                label: "Text area"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-placeholder"
+                  - type: "FormFragment"
+                    name: "attr-value"
+              - name: "email"
+                label: "E-mail"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-placeholder"
+              - name: "checkbox"
+                label: "Checkbox"
+                items:
+                  - type: "HtmlArea"
+                    name: "text"
+                    label: "Rich text label"
+                    occurrences:
+                      min: 0
+                      max: 1
+                    exclude: "*"
+                    include: "Bold Italic Underline | Link Unlink | SpecialChar"
+                    helpText: "Text that will override the label, for instance if you need to include a link to terms&conditions. IMPORTANT: Try to keep this short, as screen readers will have to recite the whole text to the user!"
+                  - type: "FormFragment"
+                    name: "attr-title"
+              - name: "checkboxes"
+                label: "Checkboxes group"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-options-radio"
+                  - type: "FormFragment"
+                    name: "attr-title"
+              - name: "radio"
+                label: "Radio buttons"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-options-radio"
+                  - type: "FormFragment"
+                    name: "attr-title"
+              - name: "select"
+                label: "Dropdown menu"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-placeholder"
+                  - type: "FormFragment"
+                    name: "attr-options-radio"
+              - name: "file"
+                label: "File"
+                items:
+                  - type: "FormFragment"
+                    name: "attr-multiple"
+                  - type: "FormFragment"
+                    name: "attr-accept"
+                  - type: "FormFragment"
+                    name: "attr-title"
+          - type: "FormFragment"
+            name: "attr-name"
+      - type: "TextLine"
+        name: "submitText"
+        label: "Submit button-text"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Customize the text of the select button if you want. Defaults to \"Submit\" in the browser language."
+      - type: "HtmlArea"
+        name: "successMessage"
+        label: "Thank you message"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Add an acknowledgment to show to the user when the form has been submitted."
+  - type: "FieldSet"
+    label: "Send data by e-mail"
+    items:
+      - type: "TextLine"
+        name: "emailSubscribers"
+        label: "To"
+        occurrences:
+          min: 0
+          max: 0
+        helpText: "Optional. E-mail addresses specified in these fields will receive all the raw form response data in an e-mail, and with uploaded files as attachments."
+        regexp: "^\\S+@\\S+$"
+      - type: "TextLine"
+        name: "emailFrom"
+        label: "From"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Default address appearing in the e-mail's \"from\" line, example: \"Customer Service\" <noreply@example.com> …or just an e-mail: noreply@example.com."
+        regexp: "^\\S+.*\\S+@\\S+$"
+      - type: "TextLine"
+        name: "emailSubject"
+        label: "Subject"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Is the form heading by default, but a custom e-mail subject may be specified here. If neither are filled out, the display name is used."
+      - type: "OptionSet"
+        name: "receipt"
+        label: "E-mail receipt back to user"
+        expanded: false
+        occurrences:
+          min: 1
+          max: 1
+        helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+        selection:
+          min: 1
+          max: 1
+        options:
+          - name: "disabled"
+            label: "No, do not send receipt"
+            selected: true
+          - name: "enabled"
+            label: "Yes, send receipt"
+            helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+            items:
+              - type: "HtmlArea"
+                name: "message"
+                label: "Receipt message"
+                occurrences:
+                  min: 1
+                  max: 1
+                helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+              - type: "CheckBox"
+                name: "includeFormData"
+                label: "Include summary of submitted form data"
+                occurrences:
+                  min: 0
+                  max: 1

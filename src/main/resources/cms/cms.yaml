@@ -1,0 +1,90 @@
+kind: "CMS"
+form:
+  - type: "FieldSet"
+    label: "Basic required settings"
+    items:
+      - type: "TextLine"
+        name: "emailFrom"
+        label: "E-mail FROM address"
+        occurrences:
+          min: 1
+          max: 1
+        regexp: "^\\S+@\\S+$"
+        helpText: "Default address appearing in the e-mail's \"from\" line, example: \"Customer Service\" <noreply@example.com> …or just an e-mail: noreply@example.com."
+      - type: "RadioButton"
+        name: "storageLocation"
+        label: "User-submitted data: Storage location and access policy"
+        occurrences:
+          min: 1
+          max: 1
+        options:
+          - value: "none"
+            label: "Minimal: No storage, only send the data by e-mail"
+          - value: "formbuilderRepo"
+            label: "Regular: Also store the data on the server, but only available in reports"
+        default: "formbuilderRepo"
+        helpText: "If \"Minimal\" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. \"Regular\" and \"Full\" will enable running reports with the widget."
+      - type: "RadioButton"
+        name: "style"
+        label: "Form style"
+        occurrences:
+          min: 1
+          max: 1
+        options:
+          - value: "inherit"
+            label: "Inherit browser default / site CSS"
+          - value: "bootstrap"
+            label: "Twitter Bootstrap"
+        default: "bootstrap"
+        helpText: "Select global styling for forms generated with the formbuilder app. If \"Browser default\" is used, no extra style sheet is loaded with the page, and the browser uses whatever CSS styling has been applied to the page for that type of HTML markup. \"Twitter Bootstrap\" currently uses v.3.3.5."
+  - type: "FieldSet"
+    label: "reCAPTCHA v2 (anti-spam measure)"
+    items:
+      - type: "TextLine"
+        name: "recaptchaSiteKey"
+        label: "reCAPTCHA v2 Site Key"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin"
+      - type: "TextLine"
+        name: "recaptchaSecretKey"
+        label: "reCAPTCHA v2 Secret Key"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin"
+  - type: "FieldSet"
+    label: "Proxy settings"
+    items:
+      - type: "ItemSet"
+        name: "proxy"
+        label: "Proxy"
+        occurrences:
+          min: 0
+          max: 1
+        items:
+          - type: "TextLine"
+            name: "host"
+            label: "Host"
+            occurrences:
+              min: 1
+              max: 1
+          - type: "TextLine"
+            name: "port"
+            label: "Port"
+            occurrences:
+              min: 0
+              max: 1
+          - type: "TextLine"
+            name: "user"
+            label: "User"
+            occurrences:
+              min: 0
+              max: 1
+          - type: "TextLine"
+            name: "password"
+            label: "Password"
+            occurrences:
+              min: 0
+              max: 1

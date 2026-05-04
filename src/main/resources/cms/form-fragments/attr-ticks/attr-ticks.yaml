@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Ticks"
+form:
+  - type: "Double"
+    name: "ticks"
+    label: "Ticks (step values)"
+    occurrences:
+      min: 0
+      max: 0
+    helpText: "[Optional] Manually set each value (\"tick\") that can be selected. If you use the Boostrap theme, this will specify the options in the select instead."

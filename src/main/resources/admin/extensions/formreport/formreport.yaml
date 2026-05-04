@@ -1,0 +1,5 @@
+kind: "AdminExtension"
+title: "Form report"
+description: "Export responses to CSV file"
+interfaces:
+  - "contentstudio.contextpanel"
