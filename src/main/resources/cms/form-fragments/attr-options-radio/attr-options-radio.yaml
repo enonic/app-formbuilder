@@ -1,0 +1,31 @@
+kind: "FormFragment"
+title: "Attr: Options (radio)"
+form:
+  - type: "ItemSet"
+    name: "options"
+    label: "Option"
+    occurrences:
+      min: 2
+      max: 0
+    items:
+      - type: "TextLine"
+        name: "optionText"
+        label: "Label"
+        occurrences:
+          min: 1
+          max: 1
+        helpText: "[Required] The text displayed to the user next to the radio button"
+      - type: "TextLine"
+        name: "optionValue"
+        label: "Value"
+        occurrences:
+          min: 1
+          max: 1
+        helpText: "[Required] The value submitted if this option is selected"
+      - type: "CheckBox"
+        name: "optionChecked"
+        label: "Selected by default"
+        occurrences:
+          min: 0
+          max: 1
+        helpText: "[Optional] Set whether this option should be pre-selected. NOTE: For dropdown menus you must pre-select NO MORE THAN ONE option, or the results can be a bit random."

@@ -1,0 +1,5 @@
+kind: "Page"
+title: "Formbuilder empty test page"
+form: []
+regions:
+  - "main"

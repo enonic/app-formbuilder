@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Multiple"
+form:
+  - type: "CheckBox"
+    name: "multiple"
+    label: "Allow multiple files at once"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "When selected, users may drag-and-drop multiple files at once into this input, or they may select several files from within the same directory shown in their browser dialog."

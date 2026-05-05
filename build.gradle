@@ -1,37 +1,29 @@
 plugins {
     id 'maven-publish'
     id 'com.enonic.defaults' version '2.1.6'
-    id 'com.enonic.xp.app' version '3.6.2'
-}
-
-app {
-    name = project.appName
-    displayName = 'Form Builder'
-    vendorName = 'Enonic AS'
-    vendorUrl = 'https://github.com/enonic'
-    systemVersion = "${xpVersion}"
+    id 'com.enonic.xp.app'
 }
 
 dependencies {
-    implementation "com.enonic.xp:core-api:${xpVersion}"
-    implementation "com.enonic.xp:portal-api:${xpVersion}"
-    include "com.enonic.xp:lib-content:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-io:${xpVersion}"
-    include "com.enonic.xp:lib-mail:${xpVersion}"
-    include "com.enonic.xp:lib-node:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-auth:${xpVersion}"
-    include "com.enonic.xp:lib-repo:${xpVersion}"
-    include "com.enonic.xp:lib-cluster:${xpVersion}"
-    include "com.enonic.lib:lib-thymeleaf:2.1.1"
-    include 'com.enonic.lib:lib-http-client:3.2.2'
-    include 'com.enonic.lib:lib-util:3.1.1'
+    implementation xplibs.api.core
+    implementation xplibs.api.portal
+    include xplibs.content
+    include xplibs.context
+    include xplibs.io
+    include xplibs.mail
+    include xplibs.node
+    include xplibs.portal
+    include xplibs.auth
+    include xplibs.repo
+    include xplibs.cluster
+    include libs.lib.thymeleaf
+    include libs.lib.http.client
+    include libs.lib.util
     //include "com.enonic.lib:recaptcha:1.1.1"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    xp.enonicRepo()
+    xp.enonicRepo( "dev" )
 }

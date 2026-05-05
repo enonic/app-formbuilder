@@ -1,7 +1,0 @@
-<page>
-  <display-name>Formbuilder empty test page</display-name>
-  <form/>
-  <regions>
-    <region name="main"/>
-  </regions>
-</page>

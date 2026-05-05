@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Label"
+form:
+  - type: "TextLine"
+    name: "label"
+    label: "Label"
+    occurrences:
+      min: 1
+      max: 1
+    helpText: "[Required] Add a label text that is displayed above the input field. This should be explanatory enough that you should understand what to enter in the field without any other explanation."

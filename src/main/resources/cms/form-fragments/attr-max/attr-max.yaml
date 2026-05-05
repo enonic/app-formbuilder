@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Max (double)"
+form:
+  - type: "Double"
+    name: "max"
+    label: "Maximum value"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Add a maximum value. This will limit user input to not exceed the specified value."

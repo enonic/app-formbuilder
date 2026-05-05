@@ -1,0 +1,10 @@
+kind: "FormFragment"
+title: "Attr: Minlength"
+form:
+  - type: "Long"
+    name: "minlength"
+    label: "Minimum lenght"
+    occurrences:
+      min: 0
+      max: 1
+    helpText: "[Optional] Set the maximum length of the password. Except for pincodes, this should never be below 8 characters, and preferably above 10."
