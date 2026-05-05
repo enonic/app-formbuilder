@@ -1,7 +1,7 @@
 [versions]
 lib-thymeleaf = "3.0.0-SNAPSHOT"
 lib-http-client = "3.2.2"
-lib-util = "3.1.1"
+lib-util = "4.0.0-SNAPSHOT"
 
 [libraries]
 lib-thymeleaf = { module = "com.enonic.lib:lib-thymeleaf", version.ref = "lib-thymeleaf" }
