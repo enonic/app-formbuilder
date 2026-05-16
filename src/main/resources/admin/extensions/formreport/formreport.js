@@ -4,7 +4,6 @@ var thymeleaf = require('/lib/thymeleaf');
 var ioLib = require('/lib/xp/io');
 var nodeLib = require('/lib/xp/node');
 var authLib = require('/lib/xp/auth');
-var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
 var view = resolve('formreport.html');
@@ -36,7 +35,7 @@ function handleGet(req) {
     var contentPermissions = contentLib.getPermissions({
         key: contentId
     });
-    var principalsWhoMayWrite = util.forceArray(contentPermissions.permissions).map(function (permission) {
+    var principalsWhoMayWrite = (Array.isArray(contentPermissions.permissions) ? contentPermissions.permissions : [contentPermissions.permissions]).map(function (permission) {
         if (permission.allow.indexOf('WRITE_PERMISSIONS') >= 0 || permission.deny.indexOf('WRITE_PERMISSIONS') < 0) {
             return permission.principal;
         }
@@ -78,7 +77,7 @@ function handleGet(req) {
         if (site && site.data && site.data.siteConfig) {
             // Traverse siteConfigs for one or all apps of a site, returning the config for the last match of this app (should only be one match anyway)
             // This is basically just the same as portalLib.getSiteConfig() if the current site was already in the context
-            util.forceArray(site.data.siteConfig).forEach(function (sc, index) {
+            (Array.isArray(site.data.siteConfig) ? site.data.siteConfig : [site.data.siteConfig]).forEach(function (sc, index) {
                 if (sc.applicationKey === app.name) {
                     siteConfig = sc.config;
                 }

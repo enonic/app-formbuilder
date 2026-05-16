@@ -4,7 +4,6 @@ var mail = require('/lib/xp/mail'); // Import the mail functions
 var nodeLib = require('/lib/xp/node'); // Import the node functions
 var portal = require('/lib/xp/portal'); // Import the portal functions
 var repo = require('/lib/xp/repo'); // Import the repo functions
-var util = require('/lib/util/data'); // Import the enonic util functions
 
 var CheckboxInputMapper = require('/lib/form-builder/mapper/checkbox-input-mapper');
 
@@ -274,7 +273,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
 
   // Populate arrays with input display names and values, in the same order as in the formConfig
   // irrelevant inputs such as headings are still included, in order to enforce a strict index correspondence between inputDisplayNames[] and inputValues[]
-  util.forceArray(formConfig.inputs).forEach(function(inputConfig) {
+  (Array.isArray(formConfig.inputs) ? formConfig.inputs : [formConfig.inputs]).forEach(function(inputConfig) {
     // Empty strings by default, since all this will be concatenated into a single string in the end
     var label = inputConfig.label || '';
     var name = encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
@@ -351,7 +350,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   if (formConfig.emailSubscribers) {
     var mailParams = {
       from: systemEmailAddr || 'noreply@example.com',
-      to: util.forceArray(formConfig.emailSubscribers),
+      to: (Array.isArray(formConfig.emailSubscribers) ? formConfig.emailSubscribers : [formConfig.emailSubscribers]),
       subject: subject,
       body: '<code>' + formDataBeautified + '</code>',
       attachments: emailAttachments,
