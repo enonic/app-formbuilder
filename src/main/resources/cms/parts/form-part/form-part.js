@@ -1,4 +1,5 @@
 var portal = require('/lib/xp/portal');
+var assetLib = require('/lib/enonic/asset');
 var thymeleaf = require('/lib/thymeleaf');
 var contentLib = require('/lib/xp/content');
 var recaptcha = require('/lib/recaptcha');
@@ -30,7 +31,7 @@ var createCssUrl = function(style) {
     } else if (pathOrUrl.contains("://")) {
         return pathOrUrl; // Absolute URL. Doesn't need handling.
     } else {
-        return portal.assetUrl({path: styleConfig[style].css});
+        return assetLib.assetUrl({path: styleConfig[style].css});
     }
 };
 
@@ -108,7 +109,7 @@ exports.get = function(request) {
     var view = resolve(styleConfig[style].view);
 
     // Get client-side JavaScript for the formbuilder
-    var formScript = portal.assetUrl({
+    var formScript = assetLib.assetUrl({
         path: 'js/formbuilder.js'
     });
 
