@@ -3,7 +3,6 @@ var contentLib = require('/lib/xp/content');
 var nodeLib = require('/lib/xp/node');
 var authLib = require('/lib/xp/auth');
 var thymeleaf = require('/lib/thymeleaf');
-var util = require('/lib/util/data');
 
 var formbuilderRepo = nodeLib.connect({
     repoId: 'com.enonic.formbuilder',
@@ -25,7 +24,7 @@ function handleGet(req) {
         var contentPermissions = contentLib.getPermissions({
             key: formId
         });
-        var principalsWhoMayWrite = util.forceArray(contentPermissions.permissions).map(function (permission) {
+        var principalsWhoMayWrite = (Array.isArray(contentPermissions.permissions) ? contentPermissions.permissions : [contentPermissions.permissions]).map(function (permission) {
             if (permission.allow.indexOf('WRITE_PERMISSIONS') >= 0 || permission.deny.indexOf('WRITE_PERMISSIONS') < 0) {
                 return permission.principal;
             }
@@ -55,7 +54,7 @@ function handleGet(req) {
                 // Replace attachment metadata with downloadable links to the same attachments
                 Object.keys(formResponse.data).forEach(function (key) {
                     if (formResponse.data[key] && typeof formResponse.data[key] == 'object' && formResponse.data[key].attachments) {
-                        util.forceArray(formResponse.data[key].attachments).forEach(function (attachment) {
+                        (Array.isArray(formResponse.data[key].attachments) ? formResponse.data[key].attachments : [formResponse.data[key].attachments]).forEach(function (attachment) {
                             if (attachment.id && attachment.name) {
                                 files.push({
                                     url: portalLib.serviceUrl({

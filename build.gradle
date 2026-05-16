@@ -18,7 +18,6 @@ dependencies {
     include xplibs.cluster
     include libs.lib.thymeleaf
     include libs.lib.http.client
-    include libs.lib.util
     //include "com.enonic.lib:recaptcha:1.1.1"
 }
 

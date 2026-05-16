@@ -2,15 +2,14 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var nodeLib = require('/lib/xp/node');
 var thymeleafLib = require('/lib/thymeleaf');
-var util = require('/lib/util/data');
 var moment = require('/lib/moment.min.js');
 
 function createCSV(responses, formContent, format) {
     var separator = (format === 'csv-sc' || format === 'csv-no') ? ';' : ',';
-    var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+    var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
-    var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+    var fieldNames = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return inputConfig.label;
     });
     // Add extra column for the response timestamps
@@ -27,7 +26,7 @@ function createCSV(responses, formContent, format) {
             Object.keys(response.data).forEach(function (key) {
                 if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
                     var inputAttachmentNames = [];
-                    util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                    (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
                         if (attachment.id && attachment.name) {
                             inputAttachmentNames.push(attachment.name);
                         }
@@ -78,10 +77,10 @@ function createCSV(responses, formContent, format) {
 }
 
 function createModelForHTML(responses, formContent) {
-    var fieldReferences = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+    var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
-    var fieldNames = util.forceArray(formContent.data.inputs).map(function (inputConfig) {
+    var fieldNames = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return inputConfig.label;
     });
 
@@ -114,7 +113,7 @@ function createModelForHTML(responses, formContent) {
                 // Replace attachment metadata with downloadable links to the same attachments
                 if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
                     cell.attachments = [];
-                    util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                    (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
                         if (attachment.id && attachment.name) {
                             cell.attachments.push({
                                 text: attachment.name,
@@ -152,7 +151,7 @@ function createModelForHTML(responses, formContent) {
                 // Replace attachment metadata with downloadable links to the same attachments
                 if (field && typeof field == 'object' && field.attachments) {
                     cell.attachments = [];
-                    util.forceArray(field.attachments).forEach(function (attachment) {
+                    (Array.isArray(field.attachments) ? field.attachments : [field.attachments]).forEach(function (attachment) {
                         if (attachment.id && attachment.name) {
                             cell.attachments.push({
                                 text: attachment.name,
@@ -273,7 +272,7 @@ function handleGet(req) {
                 var relatedAttachmentIds = [];
                 Object.keys(response.data).forEach(function (key) {
                     if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
-                        util.forceArray(response.data[key].attachments).forEach(function (attachment) {
+                        (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
                             if (attachment.id) {
                                 relatedAttachmentIds.push(attachment.id);
                             }
