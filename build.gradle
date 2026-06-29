@@ -18,7 +18,7 @@ dependencies {
     include xplibs.cluster
     include libs.lib.thymeleaf
     include libs.lib.http.client
-    include "com.enonic.lib:lib-asset:2.0.0-SNAPSHOT"
+    include "com.enonic.lib:lib-asset:2.0.0"
     //include "com.enonic.lib:recaptcha:1.1.1"
 }
 
