@@ -1,9 +1,7 @@
 [versions]
-graalvm = "25.0.3"
 lib-thymeleaf = "3.0.0"
 lib-http-client = "4.0.0"
 
 [libraries]
-graalvm-js = { module = "org.graalvm.polyglot:js", version.ref = "graalvm" }
 lib-thymeleaf = { module = "com.enonic.lib:lib-thymeleaf", version.ref = "lib-thymeleaf" }
 lib-http-client = { module = "com.enonic.lib:lib-http-client", version.ref = "lib-http-client" }
