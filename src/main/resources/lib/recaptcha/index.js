@@ -55,11 +55,13 @@ exports.isConfigured = function() {
 function post(params) {
     var bean = __.newBean('com.enonic.lib.recaptcha.HttpClientHandler');
 
-    bean.url = params.url;
-    bean.params = params.params;
+    bean.setUrl(__.nullOrValue(params.url));
+    bean.setParams(__.nullOrValue(params.params));
 
     return __.toNativeObject(bean.execute());
 }
+
+exports.post = post;
 
 
 

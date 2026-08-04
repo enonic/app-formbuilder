@@ -20,10 +20,22 @@ dependencies {
     include libs.lib.http.client
     include "com.enonic.lib:lib-asset:2.0.1"
     //include "com.enonic.lib:recaptcha:1.1.1"
+
+    testImplementation "com.enonic.xp:testing:${xpVersion}"
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
     xp.enonicRepo( "dev" )
+}
+
+test {
+    useJUnitPlatform()
+}
+
+xp {
+    scriptEngines = ['Nashorn', 'GraalJS']
 }
