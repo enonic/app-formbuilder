@@ -76,6 +76,21 @@ var XP_FORM_BUILDER = {
     }
     form.className = (form.className) ? form.className + " xp-submitting" : "xp-submitting";
   },
+  enable: function(form) {
+    var inputElements = form.getElementsByClassName("xp-input");
+    for (var i = 0; i < inputElements.length; i++) inputElements[i].disabled = false;
+    var submitBtn = form.getElementsByClassName("xp-submit")[0];
+    if (submitBtn.getAttribute('data-captcha') == 'true' && window.grecaptcha) {
+      grecaptcha.reset(); // the token was consumed by the failed request; submit is re-enabled by recaptchaCallback
+    } else {
+      submitBtn.disabled = false;
+    }
+    var spinner = document.getElementById('xp-formbuilder-spinner');
+    if (spinner) {
+        spinner.setAttribute("style", "display:none;" + (spinner.getAttribute("style") || ""));
+    }
+    form.className = form.className.replace(/\s*xp-submitting/, "");
+  },
   prepareFormData: function(inputFields) {
     var formData = new FormData();
     for (var i = 0; i < inputFields.length; i++) {
@@ -111,8 +126,8 @@ var XP_FORM_BUILDER = {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', form.action, true);
     xhr.onload = function(response) {
+      var target = response.srcElement || response.target;
       if (xhr.status === 200) {
-        var target = response.srcElement || response.target;
         XP_FORM_BUILDER.addResponse(form, target.responseText);
         if (form.remove) {
           form.remove();
@@ -121,7 +136,14 @@ var XP_FORM_BUILDER = {
         }
       } else {
         console.log("Error: Failed submitting form.");
+        XP_FORM_BUILDER.addError(form, target.responseText);
+        XP_FORM_BUILDER.enable(form);
       }
+    };
+    xhr.onerror = function() {
+      console.log("Error: Failed submitting form.");
+      XP_FORM_BUILDER.addError(form, "<p>Sorry, your form could not be submitted. Please try again later.</p>");
+      XP_FORM_BUILDER.enable(form);
     };
     xhr.send(formData);
   },
@@ -145,11 +167,31 @@ var XP_FORM_BUILDER = {
     responseTag.innerHTML = message;
     form.parentElement.insertBefore(responseTag, form);
     */
-    var successElement = document.getElementById("xp-formbuilder-successmessage");
-    if (successElement) {
-      // Show success message
-      successElement.removeAttribute("style");
+    var errorElement = document.getElementById("xp-formbuilder-errormessage");
+    if (errorElement) {
+      errorElement.parentElement.removeChild(errorElement);
     }
+    var successElement = document.getElementById("xp-formbuilder-successmessage");
+    if (!successElement) {
+      successElement = document.createElement("div");
+      successElement.id = "xp-formbuilder-successmessage";
+      form.parentElement.insertBefore(successElement, form);
+    }
+    // Show the configured success message, or the server's default when none is configured
+    if (!successElement.innerHTML.replace(/^\s+|\s+$/g, "")) {
+      successElement.innerHTML = message;
+    }
+    successElement.removeAttribute("style");
+    window.scrollTo(0,0);
+  },
+  addError: function(form, message) {
+    var errorElement = document.getElementById("xp-formbuilder-errormessage");
+    if (!errorElement) {
+      errorElement = document.createElement("div");
+      errorElement.id = "xp-formbuilder-errormessage";
+      form.parentElement.insertBefore(errorElement, form);
+    }
+    errorElement.innerHTML = message;
     window.scrollTo(0,0);
   }
 };
