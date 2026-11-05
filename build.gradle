@@ -12,6 +12,7 @@ dependencies {
     include xplibs.io
     include xplibs.mail
     include xplibs.node
+    include xplibs.value
     include xplibs.portal
     include xplibs.auth
     include xplibs.repo

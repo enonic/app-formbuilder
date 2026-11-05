@@ -3,7 +3,7 @@ var nodeLib = require('/lib/xp/node');
 
 var formbuilderRepo = nodeLib.connect({
     repoId: 'com.enonic.formbuilder',
-    branch: 'draft',
+    branch: 'master',
     principals: ['role:system.admin']
 });
 var nodeIdPattern = RegExp(/^(?:[a-zA-Z0-9_\-.:])+$/);

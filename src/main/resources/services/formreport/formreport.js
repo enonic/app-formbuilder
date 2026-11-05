@@ -221,7 +221,7 @@ function handleGet(req) {
     // TODO: test what happens with invalid repo name, throw error
     var formbuilderRepo = nodeLib.connect({
         repoId: repoId,
-        branch: 'draft',
+        branch: 'master',
         principals: ['role:system.admin']
     });
 
@@ -234,7 +234,6 @@ function handleGet(req) {
     }
 
     var responsesMetadata = formbuilderRepo.query({
-        branch: 'draft',
         query: responseMetadataQuery,
         sort: 'createdTime ASC',
         count: -1,
