@@ -128,7 +128,7 @@ exports.get = function(request) {
 };
 
 // Handles either redirect or AJAX response
-function applyResponse(responseContent, responseMessage) {
+function applyResponse(responseContent, responseMessage, defaultMessage, status) {
     if (responseContent) {
         // Redirect to content for response
         return {
@@ -142,7 +142,8 @@ function applyResponse(responseContent, responseMessage) {
     }
     else {
         return {
-            body: portal.processHtml({ value: responseMessage })
+            status: status || 200,
+            body: responseMessage ? portal.processHtml({ value: responseMessage }) : defaultMessage
         }
     }
 }
@@ -163,15 +164,16 @@ exports.post = function(request) {
 
     if (!recaptchaVerified) {
         return {
+            status: 400,
             body: '<p>The reCAPTCHA was not valid.</p>'
         }
     } else {
         // Save the form response
         var response = FormResponse.save(request, siteConfig, formContent);
         if (response) {
-            return applyResponse(formContent.data.successContent, formContent.data.successMessage);
+            return applyResponse(formContent.data.successContent, formContent.data.successMessage, '<p>Thank you, your form has been submitted.</p>');
         } else {
-            return applyResponse(formContent.data.errorContent, formContent.data.errorMessage);
+            return applyResponse(formContent.data.errorContent, formContent.data.errorMessage, '<p>Sorry, your form could not be submitted. Please try again later.</p>', 500);
         }
     }
 };

@@ -1,21 +1,22 @@
-var contentLib = require('/lib/xp/content'); // Import the content functions
-var context = require('/lib/xp/context'); // Import the context functions
 var mail = require('/lib/xp/mail'); // Import the mail functions
 var nodeLib = require('/lib/xp/node'); // Import the node functions
 var portal = require('/lib/xp/portal'); // Import the portal functions
-var repo = require('/lib/xp/repo'); // Import the repo functions
+var valueLib = require('/lib/xp/value'); // Import the value functions
 
 var CheckboxInputMapper = require('/lib/form-builder/mapper/checkbox-input-mapper');
 
 var moment = require('/lib/moment.min.js'); // Import Moment.js
+
+var REPO_ID = 'com.enonic.formbuilder';
+var ATTACHMENTS_NAME = '_attachments';
+var ATTACHMENTS_PATH = '/' + ATTACHMENTS_NAME;
 
 exports.save = function(request, siteConfig, formContent) {
   var formConfig = formContent.data;
   var formData = request.params;
   formData._formContentId = formContent._id;
   formData._formContentDisplayName = formConfig.title || formContent.displayName;
-  var responseFolder = getResponseFolder(siteConfig, formConfig);
-  return receiveForm(formData, siteConfig, formConfig, responseFolder, request);
+  return receiveForm(formData, siteConfig, formConfig, request);
 };
 
 
@@ -25,31 +26,14 @@ var isSet = function(value) {
   return value !== null && typeof value !== 'undefined';
 };
 
-// Run a function in the Draft branch context, such as storing form responses in the Draft branch
-var runInDraft = function(repoName, callback) {
-  return context.run(
-    {
-      repository: repoName,
-      branch: 'draft'
-    },
-    callback
-  );
-}
-
-// Run with admin privileges
-var runAsSu = function(repoName, callback) {
-  return context.run(
-    {
-      repository: repoName,
-      branch: 'draft',
-      user: {
-        login: 'su',
-        userStore: 'system'
-      }
-    },
-    callback
-  );
-}
+// Connect to the formbuilder repo with admin privileges
+var connect = function() {
+  return nodeLib.connect({
+    repoId: REPO_ID,
+    branch: 'master',
+    principals: ['role:system.admin']
+  });
+};
 
 // The same function as in input-mapper.js
 var _getFormattedName = function(inputContent) {
@@ -80,52 +64,34 @@ var _getInputValue = function(inputName, formData) {
 
 /*** Private functions for the inner workings of the class ***/
 
-var receiveForm = function(formData, siteConfig, formConfig, responseFolder, request) {
-  var attachments = [];
+var receiveForm = function(formData, siteConfig, formConfig, request) {
+  var repo = (siteConfig.storageLocation !== 'none') ? connect() : null;
+  var files = getFilesFromForm(portal.getMultipartForm());
   var emailAttachments = [];
-  var multiPartForm = portal.getMultipartForm();
-  if (multiPartForm) {
-    // TODO: avoid saving attachments if storageLocation is "none"
-    attachments = saveAttachments(siteConfig, multiPartForm, responseFolder);
-    for (var i = 0; i < attachments.length; i++) {
-      var attachment = attachments[i];
-      emailAttachments.push({
-        fileName: attachment.displayName,
-        data: runAsSu(
-            (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-            function() {
-          return contentLib.getAttachmentStream({
-            key: attachment.id,
-            name: attachment.name
-          });
-        }),
-        mimeType: attachment.contentType
-      });
-      if (!formData[attachment.inputId]) formData[attachment.inputId] = { attachments: [] };
-      formData[attachment.inputId].attachments.push({
-        id: attachment.id,
-        name: attachment.name,
-        // This attachmentUrl is a remnant of old code and probably doesn't work due to
-        // 1: lacking the correct server context
-        // 2: attachmentUrl only works in cms-repo and possibly only master branch
-        // Should be re-written to use download service
-        url: runAsSu(
-            (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-            function() {
-          return portal.attachmentUrl({
-            id: attachment.id,
-            download: true
-          });
-        }) || ''
-      });
+
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var stream = portal.getMultipartStream(file.name);
+    emailAttachments.push({
+      fileName: file.fileName,
+      data: stream,
+      mimeType: file.contentType
+    });
+
+    var attachment = { name: file.fileName };
+    if (repo) {
+      attachment.id = saveFile(repo, file, stream)._id;
     }
+    var inputId = file.name.split("[")[0];
+    if (!formData[inputId]) formData[inputId] = { attachments: [] };
+    formData[inputId].attachments.push(attachment);
   }
 
-  var email = sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
+  sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
   // TODO: try switching execution order with line above, or better: run asyncronously somehow
-  if (siteConfig.storageLocation !== 'none') {
+  if (repo) {
       try {
-        return saveForm(formData, siteConfig, request, responseFolder);
+        return saveForm(repo, formData, request);
       }
       catch(e) {
         log.error(e.message);
@@ -136,12 +102,11 @@ var receiveForm = function(formData, siteConfig, formConfig, responseFolder, req
   return true;
 };
 
-var saveForm = function(form, siteConfig, request, responseFolder) {
-  var timestamp = moment().format('YYYY-MM-DDTHH:mm:ss');
+var saveForm = function(repo, form, request) {
+  var now = new Date();
+  var timestamp = moment(now).format('YYYY-MM-DDTHH:mm:ss');
   var name = "".concat("[", timestamp, "] ", form._formContentDisplayName);
-  if (request.headers['Referer']) {
-      form._requestHeadersReferer = request.headers['Referer'];
-  }
+
   // Never store the Google reCAPTCHA response
   // TODO: delete any other parameters that are not present in the input config and not private
   delete form['g-recaptcha-response'];
@@ -159,74 +124,55 @@ var saveForm = function(form, siteConfig, request, responseFolder) {
   }
   */
 
-  var response = runAsSu(
-      (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-      function() {
-    return contentLib.create({
-      parentPath: responseFolder,
-      displayName: name,
-      requireValid: true,
-      contentType: 'base:unstructured',
-      branch: 'draft',
-      data: form
-    });
-  });
-  return response;
-};
-
-var saveAttachments = function(siteConfig, form, responseFolder) {
-  var attachmentsFolder = getAttachmentFolderOrCreateNew(siteConfig, responseFolder);
-  var files = getFilesFromForm(form);
-  var savedFiles = [];
-  for (var index = 0; index < files.length; index++) {
-    var savedFile = saveFile(files[index], attachmentsFolder, siteConfig);
-    savedFiles.push(savedFile);
-  }
-  return savedFiles;
-};
-
-var getResponseFolder = function(siteConfig, formConfig) {
-  if (siteConfig.storageLocation === 'cmsRepo') {
-    try {
-      return formConfig["responseFolder"] ?
-        contentLib.get({key: formConfig["responseFolder"]})._path :
-        portal.getContent()._path;
-    } catch (exception) {
-      log.error("Could not resolve folder to store form responses in.", exception);
+  // Submitted values only; form metadata is stored as separate properties below
+  var data = {};
+  for (var key in form) {
+    if (form.hasOwnProperty(key) && key !== '_formContentId' && key !== '_formContentDisplayName') {
+      data[key] = form[key];
     }
-  } else {
-    return '/';
   }
-};
 
-var getAttachmentFolderOrCreateNew = function(siteConfig, parentFolder) {
+  var node = {
+    _parentPath: '/',
+    _name: name,
+    formContentId: form._formContentId,
+    formDisplayName: form._formContentDisplayName,
+    submittedAt: valueLib.instant(now),
+    data: data
+  };
+  if (request.headers['Referer']) {
+    node.referer = request.headers['Referer'];
+  }
+
   try {
-    var attachmentsFolder = runAsSu(
-        (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-        function() {
-      return contentLib.create({
-        name: '_attachments',
-        parentPath: parentFolder,
-        displayName: '_attachments',
-        draft: true,
-        contentType: 'base:folder',
-        data: {},
-        branch: 'draft'
+    return repo.create(node);
+  } catch (e) {
+    // Most likely another response with the same name (same second): fall back to a generated name
+    delete node._name;
+    return repo.create(node);
+  }
+};
+
+var getAttachmentsFolder = function(repo) {
+  var folder = repo.get(ATTACHMENTS_PATH);
+  if (!folder) {
+    try {
+      folder = repo.create({
+        _name: ATTACHMENTS_NAME,
+        _parentPath: '/'
       });
-    });
-    return attachmentsFolder._path;
-  } catch (exception) {
-    if (exception.code === 'contentAlreadyExists') {
-      return parentFolder + "/_attachments";
-    } else {
-      log.error("Unexpected error when creating attachments-folder in path '%s': %s", parentFolder, exception);
-      return parentFolder;
+    } catch (e) {
+      // Created concurrently by another request
+      folder = repo.get(ATTACHMENTS_PATH);
+      if (!folder) throw e;
     }
   }
+  return folder._path;
 };
 
 var getFilesFromForm = function(form) {
   var files = [];
+  if (!form) return files;
   for (var inputName in form) {
     var input = form[inputName];
     if (inputIsFile(input)) {
@@ -240,27 +186,14 @@ var inputIsFile = function(input) {
   return (input["fileName"] !== undefined && input["contentType"] !== undefined);
 };
 
-var saveFile = function(file, folder, siteConfig) {
-  var stream = portal.getMultipartStream(file.name);
-  var result = runAsSu(
-      (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-      function() {
-    return contentLib.createMedia({
-      name: file.fileName,
-      parentPath: folder,
-      mimeType: file.contentType,
-      data: stream,
-      branch: 'draft'
-    });
+var saveFile = function(repo, file, stream) {
+  return repo.create({
+    _parentPath: getAttachmentsFolder(repo),
+    fileName: file.fileName,
+    mimeType: file.contentType,
+    size: file.size,
+    binary: valueLib.binary(file.fileName, stream)
   });
-  return {
-    id: result._id,
-    inputId: file.name.split("[")[0],
-    name: result._name,
-    displayName: file.fileName,
-    type: result.type,
-    contentType: file.contentType
-  };
 };
 
 var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, emailAttachments) {
@@ -313,20 +246,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   formDataBeautified = formDataBeautified.join(' ');
 
   // Create e-mail subject line
-  // Currently DISABLED due to missing boolean in form config
-  // TODO: update to get data from optionset-based model
-  var subjectFromInput = '';
-  if (isSet(formConfig.subjectCheckbox) && formConfig.subjectCheckbox) {
-    if (isSet(formConfig.subjectField)) {
-      subjectFromInput = runAsSu(
-          (siteConfig.storageLocation === 'cmsRepo') ? 'cms-repo' : 'com.enonic.formbuilder',
-          function () {
-          return formData[contentLib.get({ key: formConfig["subjectField"] })._name];
-      });
-    }
-  }
-  //var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData.displayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
-  var subject = (formConfig.emailSubject ? formConfig.emailSubject : formData._formContentDisplayName) + (subjectFromInput.length > 0 ? ' # ' + subjectFromInput : '');
+  var subject = formConfig.emailSubject ? formConfig.emailSubject : formData._formContentDisplayName;
 
   // Send e-mail receipt to user
   if (isSet(formConfig.receipt) && formConfig.receipt && formConfig.receipt._selected === 'enabled' && userEmailAddr && userEmailAddr.length > 0) {
