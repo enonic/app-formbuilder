@@ -27,8 +27,7 @@ From the Content Studio: Edit your site and add the application. Save. You may n
 *Required.* This sets the policy for how and where data is stored, if at all. The setting may be changed later without losing any data, but then data will reside in different locations before and after the change.
 
 * If "Minimal" is selected, each form _must_ have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent, since the data is not stored in Enonic.
-* "Regular" will store the form response data in a hidden repo and enable running reports with the Form Report widget. This is the default setting and is a nice compromise between the need for data management/security and ensuring that personal data rights are protected.
-* "Full" is like "Regular", but stores the form responses directly as content in Content Studio. This provides the most control over the data (for example when fullfilling a GDPR "Right to erasure" request) but might fill up Content Studio with thousands of form submissions if a form is popular and the submissions are not removed periodically.
+* "Regular" will store the form response data as nodes in a dedicated repository (`com.enonic.formbuilder`) and enable running reports with the Form Report widget. This is the default setting and is a nice compromise between the need for data management/security and ensuring that personal data rights are protected.
 
 === reCAPTCHA v2 (anti-spam measure)
 
@@ -48,7 +47,7 @@ You have many options on how to configure your form, but in many cases you can j
 
 == Form Report widget
 
-If the Form Builder app has been configured to store data using the "Regular" or "Full" policy, form responses are stored as "base:unstructured" content, together with any file attachments that users have submitted in File inputs in the web form. These may then be exported to a Comma-Separated Values (CSV) file which is viewable in your spreadsheet application of choice.
+If the Form Builder app has been configured to store data using the "Regular" policy, form responses are stored as nodes in the `com.enonic.formbuilder` repository, together with any file attachments that users have submitted in File inputs in the web form. These may then be exported to a Comma-Separated Values (CSV) file which is viewable in your spreadsheet application of choice.
 
 === Automatic form response deletion upon running reports
 
@@ -56,15 +55,12 @@ By default, a checkbox "Delete the exported form responses" inside the widget is
 
 === Other data access options
 
-If you need access to form response data at a more individual level without running reports at regular intervals, there are options provided with other Enonic XP apps:
-
-* Using the widget available in the Content Viewer app (requires the data storage policy set to "Full").
-* Using the admin tool available in the Data Toolbox app. This also allows individual removal of form response data for both data storage policies "Regular" and "Full".
+If you need access to form response data at a more individual level without running reports at regular intervals, use the Data Toolbox app: browse the `com.enonic.formbuilder` repository (branch `master`). This also allows individual removal of form responses.
 
 == Development instructions
 
 === Prerequisites
-* Install Enonic XP 7.0.0 or above
+* Install Enonic XP 8.0.0 or above
 * Set the XP_HOME variable to point to your Enonic home folder.
 
 === Deployment
@@ -76,6 +72,9 @@ If you need access to form response data at a more individual level without runn
 |===
 |Version
 |XP version
+
+|3.0.0
+|8.0.0
 
 |2.0.2
 |7.1.0
@@ -93,9 +92,17 @@ If you need access to form response data at a more individual level without runn
 |6.13.0
 |===
 
-*Important!* This App is not backwards compatible with any XP version before 7.0.0.
+*Important!* Version 3.x requires XP 8.0.0 or later. Version 2.x is not backwards compatible with any XP version before 7.0.0.
 
 == Changelog
+
+=== Version 3.0.0
+
+* Upgraded app to be XP 8 compatible
+* Form responses and uploaded files are stored as nodes in the `com.enonic.formbuilder` repository (branch `master`) instead of as content
+* Removed the "Full" storage policy (responses as content in Content Studio)
+* Deleting exported responses from a report also deletes their uploaded files
+* A failed submission now shows an error message and lets the user try again, instead of a blank page
 
 === Version 2.0.2
 

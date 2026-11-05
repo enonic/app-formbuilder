@@ -23,7 +23,7 @@ form:
           - value: "formbuilderRepo"
             label: "Regular: Also store the data on the server, but only available in reports"
         default: "formbuilderRepo"
-        helpText: "If \"Minimal\" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. \"Regular\" and \"Full\" will enable running reports with the widget."
+        helpText: "If \"Minimal\" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. \"Regular\" enables running reports with the widget."
       - type: "RadioButton"
         name: "style"
         label: "Form style"
