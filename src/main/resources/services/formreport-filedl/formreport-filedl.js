@@ -2,16 +2,17 @@ var contentLib = require('/lib/xp/content');
 var contextLib = require('/lib/xp/context');
 var nodeLib = require('/lib/xp/node');
 
-var formbuilderRepo = nodeLib.connect({
-    repoId: 'com.enonic.formbuilder',
-    branch: 'master',
-    principals: ['role:system.admin']
-});
 var nodeIdPattern = RegExp(/^(?:[a-zA-Z0-9_\-.:])+$/);
 
 function handleGet(req) {
     var formId = req.params.formId;
     var fileId = req.params.fileId;
+    // Connect per request: a module-level connection would keep the first request's context
+    var formbuilderRepo = nodeLib.connect({
+        repoId: 'com.enonic.formbuilder',
+        branch: 'master',
+        principals: ['role:system.admin']
+    });
 
     if (nodeIdPattern.test(formId) && nodeIdPattern.test(fileId)) {
         var form = contextLib.run({ repository: req.params.repository, branch: 'draft' }, function () {

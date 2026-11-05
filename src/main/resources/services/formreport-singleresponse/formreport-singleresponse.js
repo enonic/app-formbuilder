@@ -5,11 +5,6 @@ var nodeLib = require('/lib/xp/node');
 var authLib = require('/lib/xp/auth');
 var thymeleaf = require('/lib/thymeleaf');
 
-var formbuilderRepo = nodeLib.connect({
-    repoId: 'com.enonic.formbuilder',
-    branch: 'master',
-    principals: ['role:system.admin']
-});
 var nodeIdPattern = RegExp(/^(?:[a-zA-Z0-9_\-.:])+$/);
 
 var view = resolve('./formreport-singleresponse.html');
@@ -17,6 +12,12 @@ var view = resolve('./formreport-singleresponse.html');
 function handleGet(req) {
     var formId = req.params.formId;
     var formResponseId = req.params.formResponseId;
+    // Connect per request: a module-level connection would keep the first request's context
+    var formbuilderRepo = nodeLib.connect({
+        repoId: 'com.enonic.formbuilder',
+        branch: 'master',
+        principals: ['role:system.admin']
+    });
 
     if (nodeIdPattern.test(formId) && nodeIdPattern.test(formResponseId)) {
         var projectContext = { repository: req.params.repository, branch: 'draft' };
