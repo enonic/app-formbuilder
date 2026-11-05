@@ -1,5 +1,6 @@
 var portalLib = require('/lib/xp/portal');
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var nodeLib = require('/lib/xp/node');
 var authLib = require('/lib/xp/auth');
 var thymeleaf = require('/lib/thymeleaf');
@@ -18,11 +19,16 @@ function handleGet(req) {
     var formResponseId = req.params.formResponseId;
 
     if (nodeIdPattern.test(formId) && nodeIdPattern.test(formResponseId)) {
-        var form = contentLib.get({ key: formId });
+        var projectContext = { repository: req.params.repository, branch: 'draft' };
+        var form = contextLib.run(projectContext, function () {
+            return contentLib.get({ key: formId });
+        });
 
         var userHasWritePermissions = false;
-        var contentPermissions = contentLib.getPermissions({
-            key: formId
+        var contentPermissions = contextLib.run(projectContext, function () {
+            return contentLib.getPermissions({
+                key: formId
+            });
         });
         var principalsWhoMayWrite = (Array.isArray(contentPermissions.permissions) ? contentPermissions.permissions : [contentPermissions.permissions]).map(function (permission) {
             if (permission.allow.indexOf('WRITE_PERMISSIONS') >= 0 || permission.deny.indexOf('WRITE_PERMISSIONS') < 0) {
@@ -62,7 +68,8 @@ function handleGet(req) {
                                         type: 'absolute',
                                         params: {
                                             formId: form._id,
-                                            fileId: attachment.id
+                                            fileId: attachment.id,
+                                            repository: req.params.repository || ''
                                         }
                                     }),
                                     name: attachment.name

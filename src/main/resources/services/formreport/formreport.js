@@ -1,10 +1,19 @@
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var portalLib = require('/lib/xp/portal');
 var nodeLib = require('/lib/xp/node');
 var thymeleafLib = require('/lib/thymeleaf');
 var moment = require('/lib/moment.min.js');
 
-function createCSV(responses, formContent, format) {
+// Links to the other report services carry the project repository, so they can look up the form content
+function withRepository(params, repository) {
+    if (repository) {
+        params.repository = repository;
+    }
+    return params;
+}
+
+function createCSV(responses, formContent, format, repository) {
     var separator = (format === 'csv-sc' || format === 'csv-no') ? ';' : ',';
     var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
@@ -37,10 +46,10 @@ function createCSV(responses, formContent, format) {
                         response.data[key] = '=' + hyperlinkCommand + '("' + portalLib.serviceUrl({
                             service: 'formreport-singleresponse',
                             type: 'absolute',
-                            params: {
+                            params: withRepository({
                                 formId: formContent._id,
                                 formResponseId: response._id
-                            }
+                            }, repository)
                         }) + '"' + separator + '"' + inputAttachmentNames.join(', ') + '")';
                     }
                 }
@@ -76,7 +85,7 @@ function createCSV(responses, formContent, format) {
     return csv.join('\r\n').replace(/\\"/gm, '""');
 }
 
-function createModelForHTML(responses, formContent) {
+function createModelForHTML(responses, formContent, repository) {
     var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
@@ -117,10 +126,10 @@ function createModelForHTML(responses, formContent) {
                                 url: portalLib.serviceUrl({
                                     service: 'formreport-filedl',
                                     type: 'absolute',
-                                    params: {
+                                    params: withRepository({
                                         formId: formContent._id,
                                         fileId: attachment.id
-                                    }
+                                    }, repository)
                                 })
                             });
                         }
@@ -156,21 +165,19 @@ function handleGet(req) {
     var toDate = (req.params.toDate && req.params.toDate.trim()) ? req.params.toDate.trim() : null;
     var purge = (req.params.purge) ? true : false;
     var formContentId = (req.params.formContentId && req.params.formContentId.trim()) ? req.params.formContentId.trim() : null;
+    var repository = (req.params.repository && req.params.repository.trim()) ? req.params.repository.trim() : null;
 
     if (!formContentId) {
         throw new Error('Missing form content ID.');
     }
 
-    var formContentInMaster = contentLib.get({
-        key: formContentId,
-        branch: 'master'
-    });
-    var formContentInDraft = contentLib.get({
-        key: formContentId,
-        branch: 'draft'
-    });
-
-    var formContent = formContentInMaster || formContentInDraft;
+    // The form content lives in the project repository passed on by the widget
+    var getFormContent = function (branch) {
+        return contextLib.run({ repository: repository, branch: branch }, function () {
+            return contentLib.get({ key: formContentId });
+        });
+    };
+    var formContent = getFormContent('master') || getFormContent('draft');
 
     if (!formContent) {
         throw new Error('Could not find any form content by the specified ID.');
@@ -219,12 +226,12 @@ function handleGet(req) {
 
         if (format === 'html') {
             return {
-                body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent)),
+                body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent, repository)),
                 contentType: 'text/html'
             }
 
         } else {
-            csv = createCSV(responses, formContent, format, format);
+            csv = createCSV(responses, formContent, format, repository);
         }
 
         // Add byte order mark for automatic UTF-8 recognition in Excel 2013 (and later) for Windows

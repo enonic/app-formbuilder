@@ -1,4 +1,5 @@
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var nodeLib = require('/lib/xp/node');
 
 var formbuilderRepo = nodeLib.connect({
@@ -13,7 +14,9 @@ function handleGet(req) {
     var fileId = req.params.fileId;
 
     if (nodeIdPattern.test(formId) && nodeIdPattern.test(fileId)) {
-        var form = contentLib.get({ key: formId });
+        var form = contextLib.run({ repository: req.params.repository, branch: 'draft' }, function () {
+            return contentLib.get({ key: formId });
+        });
         var file = formbuilderRepo.get(fileId);
 
         if (form && file && file.fileName && file.mimeType) {

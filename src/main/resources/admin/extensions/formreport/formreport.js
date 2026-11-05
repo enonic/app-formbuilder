@@ -1,4 +1,5 @@
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var portalLib = require('/lib/xp/portal');
 var thymeleaf = require('/lib/thymeleaf');
 var ioLib = require('/lib/xp/io');
@@ -57,6 +58,7 @@ function handleGet(req) {
 
     var model = {
         widgetId: app.name,
+        repository: req.params.repository,
         content: content,
         isForm: isForm,
         actionUrl: portalLib.serviceUrl({ service: 'formreport' }),
@@ -96,4 +98,12 @@ function handleGet(req) {
         body: thymeleaf.render(view, model)
     };
 }
-exports.get = handleGet;
+// Content Studio passes the project repository and branch of the selected content
+exports.get = function (req) {
+    return contextLib.run({
+        repository: req.params.repository,
+        branch: req.params.branch
+    }, function () {
+        return handleGet(req);
+    });
+};
