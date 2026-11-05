@@ -16,17 +16,17 @@ function handleGet(req) {
         var form = contentLib.get({ key: formId });
         var file = formbuilderRepo.get(fileId);
 
-        if (form && file && file.attachment && file.attachment.name && file.attachment.mimeType) {
+        if (form && file && file.fileName && file.mimeType) {
             var stream = formbuilderRepo.getBinary({
                 key: fileId,
-                binaryReference: file.attachment.name
+                binaryReference: file.fileName
             });
 
             return {
                 body: stream,
-                contentType: file.attachment.mimeType,
+                contentType: file.mimeType,
                 headers: {
-                    'Content-Disposition': 'attachment; filename="' + file.attachment.name + '"'
+                    'Content-Disposition': 'attachment; filename="' + file.fileName + '"'
                 }
             }
         }

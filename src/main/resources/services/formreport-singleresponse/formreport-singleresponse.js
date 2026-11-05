@@ -48,7 +48,7 @@ function handleGet(req) {
         if (form) {
             var formResponse = formbuilderRepo.get(formResponseId);
 
-            if (formResponse && formResponse.type === 'base:unstructured' && formResponse.data && formResponse.data._formContentId === formId) {
+            if (formResponse && formResponse.formContentId === formId && formResponse.data) {
 
                 var files = [];
                 // Replace attachment metadata with downloadable links to the same attachments
