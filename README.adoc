@@ -51,7 +51,7 @@ If the Form Builder app has been configured to store data using the "Regular" po
 
 === Automatic form response deletion upon running reports
 
-By default, a checkbox "Delete the exported form responses" inside the widget is selected. This deletes all the form responses that were included in your report as soon as the report has been generated. This is in order to comply with general data protection regulation. If for some reason you need to keep the data stored in Enonic XP after running your report (such as for testing purposes), you need to _uncheck_ this checkbox.
+By default, a checkbox "Delete the exported form responses" inside the widget is selected. This deletes all the form responses that were included in your report as soon as the report has been generated. Uploaded files are kept, since the report only links to them. This is in order to comply with general data protection regulation. If for some reason you need to keep the data stored in Enonic XP after running your report (such as for testing purposes), you need to _uncheck_ this checkbox.
 
 === Other data access options
 
@@ -60,7 +60,7 @@ If you need access to form response data at a more individual level without runn
 == Development instructions
 
 === Prerequisites
-* Install Enonic XP 8.0.0 or above
+* Install Enonic XP 8.1.3 or above
 * Set the XP_HOME variable to point to your Enonic home folder.
 
 === Deployment
@@ -74,7 +74,7 @@ If you need access to form response data at a more individual level without runn
 |XP version
 
 |3.0.0
-|8.0.0
+|8.1.3
 
 |2.0.2
 |7.1.0
@@ -92,7 +92,10 @@ If you need access to form response data at a more individual level without runn
 |6.13.0
 |===
 
-*Important!* Version 3.x requires XP 8.0.0 or later. Version 2.x is not backwards compatible with any XP version before 7.0.0.
+*Important!*
+
+- Version 3.x requires XP 8.1.3 or later.
+- Version 2.x is not backwards compatible with any XP version before 7.0.0.
 
 == Changelog
 
@@ -101,7 +104,6 @@ If you need access to form response data at a more individual level without runn
 * Upgraded app to be XP 8 compatible
 * Form responses and uploaded files are stored as nodes in the `com.enonic.formbuilder` repository (branch `master`) instead of as content
 * Removed the "Full" storage policy (responses as content in Content Studio)
-* Deleting exported responses from a report also deletes their uploaded files
 * A failed submission now shows an error message and lets the user try again, instead of a blank page
 
 === Version 2.0.2

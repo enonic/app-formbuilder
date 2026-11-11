@@ -210,20 +210,6 @@ function handleGet(req) {
             responses.push(formbuilderRepo.get(hit.id));
         });
 
-        // Collect attachment ids now: createCSV() replaces the attachment cells with hyperlinks
-        var attachmentIds = [];
-        responses.forEach(function (response) {
-            Object.keys(response.data).forEach(function (key) {
-                if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
-                    (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
-                        if (attachment.id) {
-                            attachmentIds.push(attachment.id);
-                        }
-                    });
-                }
-            });
-        });
-
         if (format === 'html') {
             return {
                 body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent, repository)),
@@ -238,11 +224,9 @@ function handleGet(req) {
         // source: http://stackoverflow.com/questions/6002256
         csv = '\uFEFF' + csv;
 
-        // Delete exported content and related attachments
+        // Delete exported responses. Uploaded files are kept: the CSV only links to them, so they are
+        // downloaded after the response has been processed (same as 2.x)
         if (purge) {
-            if (attachmentIds.length) {
-                formbuilderRepo.delete(attachmentIds);
-            }
             responses.forEach(function (response) {
                 formbuilderRepo.delete(response._id);
             });

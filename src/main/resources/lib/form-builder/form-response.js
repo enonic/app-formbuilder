@@ -127,7 +127,8 @@ var saveForm = function(repo, form, request) {
   // Submitted values only; form metadata is stored as separate properties below
   var data = {};
   for (var key in form) {
-    if (form.hasOwnProperty(key) && key !== '_formContentId' && key !== '_formContentDisplayName') {
+    // Prototype method: a submitted field named hasOwnProperty would shadow form.hasOwnProperty
+    if (Object.prototype.hasOwnProperty.call(form, key) && key !== '_formContentId' && key !== '_formContentDisplayName') {
       data[key] = form[key];
     }
   }
