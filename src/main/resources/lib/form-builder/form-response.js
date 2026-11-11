@@ -16,7 +16,13 @@ exports.save = function(request, siteConfig, formContent) {
   var formData = request.params;
   formData._formContentId = formContent._id;
   formData._formContentDisplayName = formConfig.title || formContent.displayName;
-  return receiveForm(formData, siteConfig, formConfig, request);
+  try {
+    return receiveForm(formData, siteConfig, formConfig, request);
+  } catch (e) {
+    // Repo connection or node creation failed: the part renders its error response
+    log.error('Could not store form response', e);
+    return false;
+  }
 };
 
 
@@ -68,6 +74,7 @@ var receiveForm = function(formData, siteConfig, formConfig, request) {
   var repo = (siteConfig.storageLocation !== 'none') ? connect() : null;
   var files = getFilesFromForm(portal.getMultipartForm());
   var emailAttachments = [];
+  var fileIds = [];
 
   for (var i = 0; i < files.length; i++) {
     var file = files[i];
@@ -81,6 +88,7 @@ var receiveForm = function(formData, siteConfig, formConfig, request) {
     var attachment = { name: file.fileName };
     if (repo) {
       attachment.id = saveFile(repo, file, stream)._id;
+      fileIds.push(attachment.id);
     }
     var inputId = file.name.split("[")[0];
     if (!formData[inputId]) formData[inputId] = { attachments: [] };
@@ -90,13 +98,12 @@ var receiveForm = function(formData, siteConfig, formConfig, request) {
   sendEmailToRecipients(formData, siteConfig, formConfig, request, emailAttachments);
   // TODO: try switching execution order with line above, or better: run asyncronously somehow
   if (repo) {
-      try {
-        return saveForm(repo, formData, request);
-      }
-      catch(e) {
-        log.error(e.message);
-        return false;
-      }
+    var response = saveForm(repo, formData, request);
+    // Files keep their response and form, so the response page can still list them after a purge
+    fileIds.forEach(function (id) {
+      repo.modify({ key: id, editor: function (node) { node.formResponse = { id: response._id, formContentId: response.formContentId }; return node; } });
+    });
+    return response;
   }
   // Return success if storageLocation is "none"
   return true;

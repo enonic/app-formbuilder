@@ -13,6 +13,6 @@
             </th:block>
         </ul>
         <h2>Raw data summary</h2>
-        <pre><code data-th-text="${formDataAsJsonString}"></code></pre>
+        <pre><code data-th-text="${formDataAsJsonString} ?: '[response deleted, files kept]'"></code></pre>
     </body>
 </html>

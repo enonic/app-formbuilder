@@ -54,6 +54,15 @@ function handleGet(req) {
         // Form must not have been deleted, in order to present list
         if (form) {
             var formResponse = formbuilderRepo.get(formResponseId);
+            var purged = !formResponse;
+            if (purged) {
+                // Response purged: its files are kept and carry its id and form
+                var hits = formbuilderRepo.query({ query: "formResponse.id = '" + formResponseId + "' AND formResponse.formContentId = '" + formId + "'", count: -1 }).hits;
+                formResponse = hits.length && { formContentId: formId, data: { files: { attachments: hits.map(function (hit) {
+                    var file = formbuilderRepo.get(hit.id);
+                    return { id: file._id, name: file.fileName };
+                }) } } };
+            }
 
             if (formResponse && formResponse.formContentId === formId && formResponse.data) {
 
@@ -81,7 +90,7 @@ function handleGet(req) {
                 });
 
                 var model = {
-                    formDataAsJsonString: JSON.stringify(formResponse.data, null, 4),
+                    formDataAsJsonString: purged ? null : JSON.stringify(formResponse.data, null, 4),
                     files: files.length ? files : null
                 }
 
