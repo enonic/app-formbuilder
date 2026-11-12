@@ -3,7 +3,8 @@ const valueLib = require('/lib/xp/value'); // Import the value functions
 
 const REPO_ID = 'com.enonic.formbuilder';
 const ATTACHMENTS_NAME = '_attachments';
-const ATTACHMENTS_PATH = '/' + ATTACHMENTS_NAME;
+const ATTACHMENTS_PATH = `/${ATTACHMENTS_NAME}`;
+const LOG_PREFIX = '[Form Builder migration]: ';
 
 // 2.x kept these in the response data; 3.x stores them as node properties
 const LEGACY_KEYS = ['_formContentId', '_formContentDisplayName', '_requestHeadersReferer'];
@@ -14,12 +15,14 @@ const LEGACY_KEYS = ['_formContentId', '_formContentDisplayName', '_requestHeade
  * 2.x stored responses and uploaded files as content on branch draft, under /content.
  * 3.x stores them as plain nodes on branch master: responses at the root, files under /_attachments.
  * Each response is copied together with its files, and its attachment references are
- * rewritten to the new file nodes.
+ * rewritten to the new file nodes. Once the new nodes exist, the 2.x originals are deleted
+ * from draft. Files whose response was purged in 2.x have no response to move with: they
+ * stay on draft and are only counted.
  *
  * Safe to run on every app start. Every migrated node keeps the id of its 2.x source in
- * migratedFrom, so a later run skips it. An installation that never ran 2.x has nothing on
- * draft and returns at once. A response that fails is logged, left untouched and retried on
- * the next run.
+ * migratedFrom, so an interrupted run is completed, not repeated. An installation that never
+ * ran 2.x, or is fully migrated, has no responses on draft and returns at once. A response
+ * that fails is logged, left untouched and retried on the next run.
  */
 exports.run = function() {
   const draft = connect('draft');
@@ -34,7 +37,9 @@ exports.run = function() {
   const master = connect('master');
   // Nodes created by an interrupted run must be searchable before they are looked up
   master.refresh();
-  const stats = { responses: 0, files: 0, skipped: 0, failed: 0 };
+  const stats = { responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0 };
+  // Files of responses that failed stay on draft without being orphans
+  const pendingFileIds = [];
 
   hits.forEach(function(hit) {
     const legacy = draft.get(hit.id);
@@ -43,13 +48,15 @@ exports.run = function() {
       migrateResponse(draft, master, legacy, stats);
     } catch (e) {
       stats.failed++;
-      log.error('Form Builder migration: could not migrate response ' + legacy._id, e);
+      legacyFileIds(legacy).forEach(function(id) {
+        pendingFileIds.push(id);
+      });
+      logError(legacy, e);
     }
   });
 
   if (stats.responses || stats.skipped || stats.failed) {
-    log.info('Form Builder migration: migrated ' + stats.responses + ' responses, ' + stats.files + ' files, ' +
-      stats.skipped + ' skipped, ' + stats.failed + ' failed');
+    logStats(stats, countOrphanFiles(draft, pendingFileIds));
   }
 };
 
@@ -66,16 +73,27 @@ function connect(branch) {
   });
 }
 
-// Copies one 2.x response and its files to master, then links the files to it.
-// A response that was already copied only gets its file links completed.
+// Moves one 2.x response and its files: copy to master, link the files, delete from draft.
+// A response copied by an earlier run is not copied again, only completed.
 function migrateResponse(draft, master, legacy, stats) {
   const migratedId = findMigrated(master, legacy._id);
+  let response;
   if (migratedId) {
-    linkFiles(master, master.get(migratedId));
+    response = master.get(migratedId);
     stats.skipped++;
-    return;
+  } else {
+    response = copyResponse(draft, master, legacy, stats);
+    stats.responses++;
   }
 
+  linkFiles(master, response);
+  deleteLegacy(draft, legacy);
+  stats.deleted++;
+}
+
+// Creates the 3.x response node from a 2.x response, copying its files first.
+// 2.x metadata moves out of data into node properties.
+function copyResponse(draft, master, legacy, stats) {
   const data = {};
   Object.keys(legacy.data).forEach(function(key) {
     if (LEGACY_KEYS.indexOf(key) >= 0) return;
@@ -99,9 +117,7 @@ function migrateResponse(draft, master, legacy, stats) {
     node.referer = legacy.data._requestHeadersReferer;
   }
 
-  const response = createResponse(master, node, legacy.displayName);
-  linkFiles(master, response);
-  stats.responses++;
+  return createResponse(master, node, legacy.displayName);
 }
 
 // Creates the response node named like 2.x displayed it: "[timestamp] <form title>".
@@ -124,7 +140,7 @@ function migrateFile(draft, master, ref, stats) {
   const media = ref.id ? draft.get(ref.id) : null;
   const attachment = media && media.attachment;
   if (!attachment || !attachment.name) {
-    log.warning('Form Builder migration: file [' + ref.name + '] (' + ref.id + ') not found, keeping its name only');
+    logMissingFile(ref);
     return { name: ref.name };
   }
 
@@ -167,9 +183,41 @@ function linkFiles(master, response) {
   });
 }
 
+// Deletes a migrated 2.x response and its files from draft. Files go first, so an
+// interrupted run leaves a response that the next run still finds and removes.
+function deleteLegacy(draft, legacy) {
+  const fileIds = legacyFileIds(legacy);
+  if (fileIds.length) {
+    draft.delete(fileIds);
+  }
+  draft.delete(legacy._id);
+}
+
+// Ids of the 2.x media contents that a response refers to.
+function legacyFileIds(legacy) {
+  const ids = [];
+  Object.keys(legacy.data).forEach(function(key) {
+    if (!hasAttachments(legacy.data[key])) return;
+    forceArray(legacy.data[key].attachments).forEach(function(ref) {
+      if (ref.id) ids.push(ref.id);
+    });
+  });
+  return ids;
+}
+
+// Counts the 2.x files left on draft that no remaining response refers to:
+// uploads whose response was purged in 2.x.
+function countOrphanFiles(draft, pendingFileIds) {
+  draft.refresh();
+  const hits = draft.query({ query: `_parentPath = "/content/${ATTACHMENTS_NAME}"`, count: -1 }).hits;
+  return hits.filter(function(hit) {
+    return pendingFileIds.indexOf(hit.id) < 0;
+  }).length;
+}
+
 // Returns the id of the node on master that was created from the given 2.x node, or null.
 function findMigrated(master, legacyId) {
-  const hits = master.query({ query: 'migratedFrom = "' + legacyId + '"', count: 1 }).hits;
+  const hits = master.query({ query: `migratedFrom = "${legacyId}"`, count: 1 }).hits;
   return hits.length ? hits[0].id : null;
 }
 
@@ -197,4 +245,23 @@ function hasAttachments(value) {
 // 2.x stored a single attachment as an object and several as an array.
 function forceArray(value) {
   return Array.isArray(value) ? value : [value];
+}
+
+// Logs the summary of a run: what was copied, skipped, failed and deleted,
+// and how many orphan files stay on draft.
+function logStats(stats, orphanFiles) {
+  log.info(`${LOG_PREFIX}migrated ${stats.responses} responses, ${stats.files} files, ` +
+    `${stats.skipped} already migrated, ${stats.failed} failed, ${stats.deleted} deleted from draft, ` +
+    `${orphanFiles} orphan files left on draft`);
+}
+
+// Logs a response that could not be migrated, with its cause.
+// The response stays on draft and is retried on the next run.
+function logError(legacy, e) {
+  log.error(`${LOG_PREFIX}could not migrate response ${legacy._id}`, e);
+}
+
+// Logs a file reference whose 2.x media content no longer exists.
+function logMissingFile(ref) {
+  log.warning(`${LOG_PREFIX}file [${ref.name}] (${ref.id}) not found, keeping its name only`);
 }
