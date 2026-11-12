@@ -23,21 +23,25 @@ const LEGACY_KEYS = ['_formContentId', '_formContentDisplayName', '_requestHeade
  * migratedFrom, so an interrupted run is completed, not repeated. An installation that never
  * ran 2.x, or is fully migrated, has no responses on draft and returns at once. A response
  * that fails is logged, left untouched and retried on the next run.
+ *
+ * Returns the counts of the run: responses and files copied, responses skipped (copied by an
+ * earlier run), failed and deleted from draft, and orphanFiles left on draft. Orphan files are
+ * only counted when the run had responses to handle.
  */
 exports.run = function() {
+  const stats = { responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0 };
   const draft = connect('draft');
   let hits;
   try {
     hits = draft.query({ query: '_parentPath = "/content"', sort: '_ts ASC', count: -1 }).hits;
   } catch (e) {
     // No draft branch: this installation never ran 2.x
-    return;
+    return stats;
   }
 
   const master = connect('master');
   // Nodes created by an interrupted run must be searchable before they are looked up
   master.refresh();
-  const stats = { responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0 };
   // Files of responses that failed stay on draft without being orphans
   const pendingFileIds = [];
 
@@ -56,8 +60,10 @@ exports.run = function() {
   });
 
   if (stats.responses || stats.skipped || stats.failed) {
-    logStats(stats, countOrphanFiles(draft, pendingFileIds));
+    stats.orphanFiles = countOrphanFiles(draft, pendingFileIds);
+    logStats(stats);
   }
+  return stats;
 };
 
 // *
@@ -249,10 +255,10 @@ function forceArray(value) {
 
 // Logs the summary of a run: what was copied, skipped, failed and deleted,
 // and how many orphan files stay on draft.
-function logStats(stats, orphanFiles) {
+function logStats(stats) {
   log.info(`${LOG_PREFIX}migrated ${stats.responses} responses, ${stats.files} files, ` +
     `${stats.skipped} already migrated, ${stats.failed} failed, ${stats.deleted} deleted from draft, ` +
-    `${orphanFiles} orphan files left on draft`);
+    `${stats.orphanFiles} orphan files left on draft`);
 }
 
 // Logs a response that could not be migrated, with its cause.
