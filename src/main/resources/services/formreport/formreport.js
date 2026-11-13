@@ -1,10 +1,19 @@
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var portalLib = require('/lib/xp/portal');
 var nodeLib = require('/lib/xp/node');
 var thymeleafLib = require('/lib/thymeleaf');
 var moment = require('/lib/moment.min.js');
 
-function createCSV(responses, formContent, format) {
+// Links to the other report services carry the project repository, so they can look up the form content
+function withRepository(params, repository) {
+    if (repository) {
+        params.repository = repository;
+    }
+    return params;
+}
+
+function createCSV(responses, formContent, format, repository) {
     var separator = (format === 'csv-sc' || format === 'csv-no') ? ';' : ',';
     var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
@@ -20,7 +29,7 @@ function createCSV(responses, formContent, format) {
     responses.forEach(function (response) {
         if (response.data) {
             // Add submitted timestamp for response
-            response.data._createdTime = response.createdTime;
+            response.data._createdTime = response.submittedAt;
 
             // Replace attachment metadata with downloadable links to the same attachments
             Object.keys(response.data).forEach(function (key) {
@@ -37,10 +46,10 @@ function createCSV(responses, formContent, format) {
                         response.data[key] = '=' + hyperlinkCommand + '("' + portalLib.serviceUrl({
                             service: 'formreport-singleresponse',
                             type: 'absolute',
-                            params: {
+                            params: withRepository({
                                 formId: formContent._id,
                                 formResponseId: response._id
-                            }
+                            }, repository)
                         }) + '"' + separator + '"' + inputAttachmentNames.join(', ') + '")';
                     }
                 }
@@ -76,7 +85,7 @@ function createCSV(responses, formContent, format) {
     return csv.join('\r\n').replace(/\\"/gm, '""');
 }
 
-function createModelForHTML(responses, formContent) {
+function createModelForHTML(responses, formContent, repository) {
     var fieldReferences = (Array.isArray(formContent.data.inputs) ? formContent.data.inputs : [formContent.data.inputs]).map(function (inputConfig) {
         return encodeURIComponent(inputConfig.name || inputConfig.label).replace(/\./g, '_');
     });
@@ -99,47 +108,6 @@ function createModelForHTML(responses, formContent) {
         return value;
     };
 
-    // Add processed response data to easily accessible array object
-    var responseData = [];
-    responses.forEach(function (response) {
-        if (response.data) {
-            // Add submitted timestamp for response
-            response.data._createdTime = response.createdTime;
-
-            // Process each response value into a cell value
-            Object.keys(response.data).forEach(function (key) {
-                var cell = {};
-
-                // Replace attachment metadata with downloadable links to the same attachments
-                if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
-                    cell.attachments = [];
-                    (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
-                        if (attachment.id && attachment.name) {
-                            cell.attachments.push({
-                                text: attachment.name,
-                                url: portalLib.serviceUrl({
-                                    service: 'formreport-filedl',
-                                    type: 'absolute',
-                                    params: {
-                                        formId: formContent._id,
-                                        fileId: attachment.id
-                                    }
-                                })
-                            });
-                        }
-                    });
-                } else {
-                    cell = {
-                        value: response.data[key]
-                    }
-                }
-
-                // TODO: this might be wrong!
-                responseData.push(cell);
-            });
-        }
-    });
-
     // Generate rows of responses
     var rows = responses.map(function (response) {
         var row = {
@@ -158,10 +126,10 @@ function createModelForHTML(responses, formContent) {
                                 url: portalLib.serviceUrl({
                                     service: 'formreport-filedl',
                                     type: 'absolute',
-                                    params: {
+                                    params: withRepository({
                                         formId: formContent._id,
                                         fileId: attachment.id
-                                    }
+                                    }, repository)
                                 })
                             });
                         }
@@ -178,7 +146,7 @@ function createModelForHTML(responses, formContent) {
         };
         // createdTime added to last cell for this row
         row.cells.push({
-            value: response.createdTime
+            value: response.submittedAt
         });
 
         return row;
@@ -193,52 +161,46 @@ function createModelForHTML(responses, formContent) {
 function handleGet(req) {
     var format = (req.params.format && req.params.format.trim()) ? req.params.format.trim() : 'html';
     var filename = (req.params.filename && req.params.filename.trim()) ? req.params.filename.trim() : 'formbuilder-report.csv';
-    var repoId = (req.params.repoId && req.params.repoId.trim()) ? req.params.repoId.trim() : 'com.enonic.formbuilder';
     var fromDate = (req.params.fromDate && req.params.fromDate.trim()) ? req.params.fromDate.trim() : null;
     var toDate = (req.params.toDate && req.params.toDate.trim()) ? req.params.toDate.trim() : null;
     var purge = (req.params.purge) ? true : false;
     var formContentId = (req.params.formContentId && req.params.formContentId.trim()) ? req.params.formContentId.trim() : null;
+    var repository = (req.params.repository && req.params.repository.trim()) ? req.params.repository.trim() : null;
 
     if (!formContentId) {
         throw new Error('Missing form content ID.');
     }
 
-    var formContentInMaster = contentLib.get({
-        key: formContentId,
-        branch: 'master'
-    });
-    var formContentInDraft = contentLib.get({
-        key: formContentId,
-        branch: 'draft'
-    });
-
-    var formContent = formContentInMaster || formContentInDraft;
+    // The form content lives in the project repository passed on by the widget
+    var getFormContent = function (branch) {
+        return contextLib.run({ repository: repository, branch: branch }, function () {
+            return contentLib.get({ key: formContentId });
+        });
+    };
+    var formContent = getFormContent('master') || getFormContent('draft');
 
     if (!formContent) {
         throw new Error('Could not find any form content by the specified ID.');
     }
 
-    // TODO: test what happens with invalid repo name, throw error
     var formbuilderRepo = nodeLib.connect({
-        repoId: repoId,
-        branch: 'draft',
+        repoId: 'com.enonic.formbuilder',
+        branch: 'master',
         principals: ['role:system.admin']
     });
 
-    var responseMetadataQuery = 'data._formContentId = "' + formContentId + '"';
+    var responseMetadataQuery = 'formContentId = "' + formContentId + '"';
     if (fromDate || toDate) {
         var fromDateTime = (fromDate && moment(fromDate)) ? moment(fromDate).format('YYYY-MM-DD') + 'T00:00:00Z' : '1970-01-01T00:00:00Z';
         // add one day to include hits from last day specified, fallback to tomorrow
         var toDateTime = (toDate && moment(toDate)) ? moment(toDate).add(1, 'days').format('YYYY-MM-DD') + 'T00:00:00Z' : moment().add(1, 'days').format('YYYY-MM-DD') + 'T00:00:00Z';
-        responseMetadataQuery += ' AND range("createdTime", instant("' + fromDateTime + '"), instant("' + toDateTime + '"), "true", "false")';
+        responseMetadataQuery += ' AND range("submittedAt", instant("' + fromDateTime + '"), instant("' + toDateTime + '"), "true", "false")';
     }
 
     var responsesMetadata = formbuilderRepo.query({
-        branch: 'draft',
         query: responseMetadataQuery,
-        sort: 'createdTime ASC',
-        count: -1,
-        contentTypes: ['base:unstructured']
+        sort: 'submittedAt ASC',
+        count: -1
     });
 
     var csv = '';
@@ -250,40 +212,22 @@ function handleGet(req) {
 
         if (format === 'html') {
             return {
-                body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent)),
+                body: thymeleafLib.render(resolve("./formreport.html"), createModelForHTML(responses, formContent, repository)),
                 contentType: 'text/html'
             }
 
         } else {
-            csv = createCSV(responses, formContent, format, format);
+            csv = createCSV(responses, formContent, format, repository);
         }
 
         // Add byte order mark for automatic UTF-8 recognition in Excel 2013 (and later) for Windows
         // source: http://stackoverflow.com/questions/6002256
         csv = '\uFEFF' + csv;
 
-        // Delete exported content and related attachments
+        // Delete exported responses. Uploaded files are kept: the CSV only links to them, so they are
+        // downloaded after the response has been processed (same as 2.x)
         if (purge) {
             responses.forEach(function (response) {
-                // Delete related attachments
-                // DEACTIVATED until a good toggle is found in the download service for enabling/disabling deleting attachments after they have been downloaded.
-                // Currenly, the attachments need to remain in the system because they will always be downloaded manually AFTER the original form has been processed and/or deleted
-                /*
-                var relatedAttachmentIds = [];
-                Object.keys(response.data).forEach(function (key) {
-                    if (response.data[key] && typeof response.data[key] == 'object' && response.data[key].attachments) {
-                        (Array.isArray(response.data[key].attachments) ? response.data[key].attachments : [response.data[key].attachments]).forEach(function (attachment) {
-                            if (attachment.id) {
-                                relatedAttachmentIds.push(attachment.id);
-                            }
-
-                        });
-                    }
-                });
-                formbuilderRepo.delete(relatedAttachmentIds);
-                */
-
-                // Delete form response
                 formbuilderRepo.delete(response._id);
             });
         }

@@ -1,14 +1,10 @@
 var portalLib = require('/lib/xp/portal');
 var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var nodeLib = require('/lib/xp/node');
 var authLib = require('/lib/xp/auth');
 var thymeleaf = require('/lib/thymeleaf');
 
-var formbuilderRepo = nodeLib.connect({
-    repoId: 'com.enonic.formbuilder',
-    branch: 'draft',
-    principals: ['role:system.admin']
-});
 var nodeIdPattern = RegExp(/^(?:[a-zA-Z0-9_\-.:])+$/);
 
 var view = resolve('./formreport-singleresponse.html');
@@ -16,13 +12,24 @@ var view = resolve('./formreport-singleresponse.html');
 function handleGet(req) {
     var formId = req.params.formId;
     var formResponseId = req.params.formResponseId;
+    // Connect per request: a module-level connection would keep the first request's context
+    var formbuilderRepo = nodeLib.connect({
+        repoId: 'com.enonic.formbuilder',
+        branch: 'master',
+        principals: ['role:system.admin']
+    });
 
     if (nodeIdPattern.test(formId) && nodeIdPattern.test(formResponseId)) {
-        var form = contentLib.get({ key: formId });
+        var projectContext = { repository: req.params.repository, branch: 'draft' };
+        var form = contextLib.run(projectContext, function () {
+            return contentLib.get({ key: formId });
+        });
 
         var userHasWritePermissions = false;
-        var contentPermissions = contentLib.getPermissions({
-            key: formId
+        var contentPermissions = contextLib.run(projectContext, function () {
+            return contentLib.getPermissions({
+                key: formId
+            });
         });
         var principalsWhoMayWrite = (Array.isArray(contentPermissions.permissions) ? contentPermissions.permissions : [contentPermissions.permissions]).map(function (permission) {
             if (permission.allow.indexOf('WRITE_PERMISSIONS') >= 0 || permission.deny.indexOf('WRITE_PERMISSIONS') < 0) {
@@ -47,8 +54,17 @@ function handleGet(req) {
         // Form must not have been deleted, in order to present list
         if (form) {
             var formResponse = formbuilderRepo.get(formResponseId);
+            var purged = !formResponse;
+            if (purged) {
+                // Response purged: its files are kept and carry its id and form
+                var hits = formbuilderRepo.query({ query: "formResponse.id = '" + formResponseId + "' AND formResponse.formContentId = '" + formId + "'", count: -1 }).hits;
+                formResponse = hits.length && { formContentId: formId, data: { files: { attachments: hits.map(function (hit) {
+                    var file = formbuilderRepo.get(hit.id);
+                    return { id: file._id, name: file.fileName };
+                }) } } };
+            }
 
-            if (formResponse && formResponse.type === 'base:unstructured' && formResponse.data && formResponse.data._formContentId === formId) {
+            if (formResponse && formResponse.formContentId === formId && formResponse.data) {
 
                 var files = [];
                 // Replace attachment metadata with downloadable links to the same attachments
@@ -62,7 +78,8 @@ function handleGet(req) {
                                         type: 'absolute',
                                         params: {
                                             formId: form._id,
-                                            fileId: attachment.id
+                                            fileId: attachment.id,
+                                            repository: req.params.repository || ''
                                         }
                                     }),
                                     name: attachment.name
@@ -73,7 +90,7 @@ function handleGet(req) {
                 });
 
                 var model = {
-                    formDataAsJsonString: JSON.stringify(formResponse.data, null, 4),
+                    formDataAsJsonString: purged ? null : JSON.stringify(formResponse.data, null, 4),
                     files: files.length ? files : null
                 }
 
