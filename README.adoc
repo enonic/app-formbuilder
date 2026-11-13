@@ -16,6 +16,24 @@ If you are upgrading to a newer version of this app by any other means than the 
 
 From the Content Studio: Edit your site and add the application. Save. You may notice that the application is highlighted, because required fields have not been filled out. These are the fields described in the section directly below.
 
+== Upgrading from 2.x
+
+Version 3.x stores form responses in a different way than 2.x (see the changelog). The responses and uploaded files that 2.x stored are moved to the new layout automatically, the first time version 3.x starts.
+
+The migration runs in the background when the app starts, in a cluster on the master node only. When it has moved something it writes one line to the server log:
+
+----
+[Form Builder migration]: migrated 5 responses, 3 files, 0 already migrated, 0 failed, 5 deleted from draft, 1 orphan files left on draft
+----
+
+* Responses and their files are copied to branch `master` of the `com.enonic.formbuilder` repository and then deleted from branch `draft`, where 2.x kept them.
+* Migrated responses and files get new ids, so links to them in reports exported with 2.x no longer work. Run a new report to get working links.
+* A response that could not be migrated is logged as an error and stays on branch `draft`. It is tried again every time the app starts.
+* "Orphan files" are files whose response was deleted when a report was run in 2.x. They have no response to move with, so they stay on branch `draft` under `/content/_attachments` and are only counted in the log line. Use the Data Toolbox app to download or delete them.
+* Responses stored with the "Full" policy of earlier versions (as content in Content Studio) are not migrated.
+
+The migration is safe to run again: it only looks for responses that are still on branch `draft`, and does nothing on an installation that never ran 2.x.
+
 == Application setup and configuration options
 
 === E-mail FROM address
@@ -103,6 +121,7 @@ If you need access to form response data at a more individual level without runn
 
 * Upgraded app to be XP 8 compatible
 * Form responses and uploaded files are stored as nodes in the `com.enonic.formbuilder` repository (branch `master`) instead of as content
+* Form responses stored by version 2.x are moved to the new layout when the app starts, see "Upgrading from 2.x"
 * Removed the "Full" storage policy (responses as content in Content Studio)
 * A failed submission now shows an error message and lets the user try again, instead of a blank page
 
