@@ -49,7 +49,7 @@ exports.testCopiesResponseWithoutFiles = function() {
     migratedFrom: 'r1',
     referer: 'http://localhost/form-a'
   }, responses[0], 'response node');
-  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 exports.testCopiesSingleFileStoredAsObject = function() {
@@ -130,7 +130,7 @@ exports.testSecondRunChangesNothing = function() {
 
   equal(master, mockNodeLib.nodes('master'), 'master unchanged');
   equal(draft, mockNodeLib.nodes('draft'), 'draft unchanged');
-  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 exports.testCompletesRunInterruptedAfterFilesWereCopied = function() {
@@ -146,7 +146,7 @@ exports.testCompletesRunInterruptedAfterFilesWereCopied = function() {
   equal([{ id: 'f1', name: 'hello.txt' }], response.data.files.attachments, 'response refers to the existing file');
   equal({ id: response._id, formContentId: FORM_ID }, mockNodeLib.get('master', 'f1').formResponse, 'file linked');
   equal(['content', 'folder'], pluck(mockNodeLib.nodes('draft'), '_id'), 'draft cleaned');
-  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 exports.testCompletesRunInterruptedAfterResponseWasCopied = function() {
@@ -167,7 +167,7 @@ exports.testCompletesRunInterruptedAfterResponseWasCopied = function() {
   equal(['n1'], pluck(migratedResponses(), '_id'), 'response not copied twice');
   equal({ id: 'n1', formContentId: FORM_ID }, mockNodeLib.get('master', 'f1').formResponse, 'file linked');
   equal(['content', 'folder'], pluck(mockNodeLib.nodes('draft'), '_id'), 'draft cleaned');
-  equal({ responses: 0, files: 0, skipped: 1, failed: 0, deleted: 1, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 0, files: 0, skipped: 1, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 exports.testKeepsNameOfMissingFile = function() {
@@ -179,7 +179,62 @@ exports.testKeepsNameOfMissingFile = function() {
   equal({ files: { attachments: [{ name: 'hello.txt' }] } }, response.data, 'ref keeps the name only');
   equal(0, mockNodeLib.children('master', '/_attachments').length, 'no file node');
   equal(['content', 'folder'], pluck(mockNodeLib.nodes('draft'), '_id'), 'response deleted from draft');
-  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
+};
+
+exports.testLeavesUnreadableFilesOnDraft = function() {
+  // Both exist on draft, but not with the single attachment object that 2.x wrote
+  const asArray = legacyMedia('m1', 'array.txt', 'text/plain', 14);
+  asArray.attachment = [asArray.attachment, asArray.attachment];
+  const withoutAttachment = legacyMedia('m2', 'none.txt', 'text/plain', 14);
+  delete withoutAttachment.attachment;
+  mockNodeLib.seed('draft', asArray);
+  mockNodeLib.seed('draft', withoutAttachment);
+  mockNodeLib.seed('draft', legacyMedia('m3', 'hello.txt', 'text/plain', 14));
+  mockNodeLib.seed('draft', legacyResponse('r1', {
+    files: { attachments: [legacyRef('m1', 'array.txt'), legacyRef('m2', 'none.txt'), legacyRef('m3', 'hello.txt')] }
+  }));
+
+  const stats = migration.run();
+
+  const response = migratedResponses()[0];
+  const files = mockNodeLib.children('master', '/_attachments');
+  equal(['m3'], pluck(files, 'migratedFrom'), 'only the readable file copied');
+  equal([
+    { name: 'array.txt' },
+    { name: 'none.txt' },
+    { id: files[0]._id, name: 'hello.txt' }
+  ], response.data.files.attachments, 'unreadable files keep the name only');
+  equal(mockNodeLib.stored(asArray), mockNodeLib.get('draft', 'm1'), 'file with an attachment array untouched on draft');
+  equal(mockNodeLib.stored(withoutAttachment), mockNodeLib.get('draft', 'm2'), 'file without attachment untouched on draft');
+  equal(['content', 'folder', 'm1', 'm2'], pluck(mockNodeLib.nodes('draft'), '_id'), 'response and copied file deleted from draft');
+  equal({ responses: 1, files: 1, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 2 }, stats, 'stats');
+};
+
+exports.testResumedRunLeavesUnreadableFilesOnDraft = function() {
+  // An earlier run copied the response, keeping only the name of the unreadable file
+  const unreadable = legacyMedia('m1', 'none.txt', 'text/plain', 14);
+  delete unreadable.attachment;
+  mockNodeLib.seed('draft', unreadable);
+  mockNodeLib.seed('draft', legacyMedia('m2', 'hello.txt', 'text/plain', 14));
+  mockNodeLib.seed('draft', legacyResponse('r1', {
+    files: { attachments: [legacyRef('m1', 'none.txt'), legacyRef('m2', 'hello.txt')] }
+  }));
+  mockNodeLib.seed('master', { _id: 'attachments', _path: '/_attachments' });
+  mockNodeLib.seed('master', { _id: 'f2', _path: '/_attachments/f2', fileName: 'hello.txt', migratedFrom: 'm2' });
+  mockNodeLib.seed('master', {
+    _id: 'n1',
+    _path: `/${RESPONSE_NAME}`,
+    formContentId: FORM_ID,
+    data: { files: { attachments: [{ name: 'none.txt' }, { id: 'f2', name: 'hello.txt' }] } },
+    migratedFrom: 'r1'
+  });
+
+  const stats = migration.run();
+
+  equal(mockNodeLib.stored(unreadable), mockNodeLib.get('draft', 'm1'), 'unreadable file untouched on draft');
+  equal(['content', 'folder', 'm1'], pluck(mockNodeLib.nodes('draft'), '_id'), 'response and copied file deleted from draft');
+  equal({ responses: 0, files: 0, skipped: 1, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 1 }, stats, 'stats');
 };
 
 exports.testFallsBackToGeneratedNameOnCollision = function() {
@@ -207,7 +262,7 @@ exports.testFailedResponseIsLeftAndRetried = function() {
 
   equal(['r1'], pluck(migratedResponses(), 'migratedFrom'), 'the other response is migrated');
   equal(['content', 'folder', 'm1', 'r2'], pluck(mockNodeLib.nodes('draft'), '_id'), 'failed response and its file stay on draft');
-  equal({ responses: 1, files: 1, skipped: 0, failed: 1, deleted: 1, orphanFiles: 0 }, failed, 'stats of the failed run');
+  equal({ responses: 1, files: 1, skipped: 0, failed: 1, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, failed, 'stats of the failed run');
 
   mockNodeLib.failCreate = null;
   const retried = migration.run();
@@ -215,7 +270,7 @@ exports.testFailedResponseIsLeftAndRetried = function() {
   equal(['r1', 'r2'], pluck(migratedResponses(), 'migratedFrom'), 'failed response migrated by the next run');
   equal(1, mockNodeLib.children('master', '/_attachments').length, 'its file is not copied twice');
   equal(['content', 'folder'], pluck(mockNodeLib.nodes('draft'), '_id'), 'draft cleaned');
-  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0 }, retried, 'stats of the retry');
+  equal({ responses: 1, files: 0, skipped: 0, failed: 0, deleted: 1, orphanFiles: 0, unreadableFiles: 0 }, retried, 'stats of the retry');
 };
 
 exports.testReturnsQuietlyWithoutDraftBranch = function() {
@@ -224,7 +279,7 @@ exports.testReturnsQuietlyWithoutDraftBranch = function() {
   const stats = migration.run();
 
   equal(0, mockNodeLib.nodes('master').length, 'master untouched');
-  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 exports.testIgnoresOtherNodesUnderContent = function() {
@@ -235,7 +290,7 @@ exports.testIgnoresOtherNodesUnderContent = function() {
 
   equal(0, mockNodeLib.nodes('master').length, 'nothing copied');
   equal(draft, mockNodeLib.nodes('draft'), 'draft unchanged');
-  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0 }, stats, 'stats');
+  equal({ responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0, unreadableFiles: 0 }, stats, 'stats');
 };
 
 // *

@@ -16,8 +16,11 @@ const LEGACY_KEYS = ['_formContentId', '_formContentDisplayName', '_requestHeade
  * 3.x stores them as plain nodes on branch master: responses at the root, files under /_attachments.
  * Each response is copied together with its files, and its attachment references are
  * rewritten to the new file nodes. Once the new nodes exist, the 2.x originals are deleted
- * from draft. Files whose response was purged in 2.x have no response to move with: they
- * stay on draft and are only counted.
+ * from draft. A file is deleted from draft only when its copy exists on master.
+ *
+ * Two kinds of files stay on draft and are only counted. Orphan files: their response was
+ * purged in 2.x, so they have no response to move with. Unreadable files: their 2.x content
+ * exists but does not hold the attachment that 2.x wrote, so they could not be copied.
  *
  * Safe to run on every app start. Every migrated node keeps the id of its 2.x source in
  * migratedFrom, so an interrupted run is completed, not repeated. An installation that never
@@ -25,11 +28,11 @@ const LEGACY_KEYS = ['_formContentId', '_formContentDisplayName', '_requestHeade
  * that fails is logged, left untouched and retried on the next run.
  *
  * Returns the counts of the run: responses and files copied, responses skipped (copied by an
- * earlier run), failed and deleted from draft, and orphanFiles left on draft. Orphan files are
- * only counted when the run had responses to handle.
+ * earlier run), failed and deleted from draft, and orphanFiles and unreadableFiles left on
+ * draft. The files left on draft are only counted when the run had responses to handle.
  */
 exports.run = function() {
-  const stats = { responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0 };
+  const stats = { responses: 0, files: 0, skipped: 0, failed: 0, deleted: 0, orphanFiles: 0, unreadableFiles: 0 };
   const draft = connect('draft');
   let hits;
   try {
@@ -42,7 +45,7 @@ exports.run = function() {
   const master = connect('master');
   // Nodes created by an interrupted run must be searchable before they are looked up
   master.refresh();
-  // Files of responses that failed stay on draft without being orphans
+  // Files of responses that failed stay on draft without being counted as left behind
   const pendingFileIds = [];
 
   hits.forEach(function(hit) {
@@ -60,7 +63,7 @@ exports.run = function() {
   });
 
   if (stats.responses || stats.skipped || stats.failed) {
-    stats.orphanFiles = countOrphanFiles(draft, pendingFileIds);
+    countLeftFiles(draft, pendingFileIds, stats);
     logStats(stats);
   }
   return stats;
@@ -92,8 +95,8 @@ function migrateResponse(draft, master, legacy, stats) {
     stats.responses++;
   }
 
-  linkFiles(master, response);
-  deleteLegacy(draft, legacy);
+  const copiedFileIds = linkFiles(master, response);
+  deleteLegacy(draft, legacy, copiedFileIds);
   stats.deleted++;
 }
 
@@ -141,14 +144,18 @@ function createResponse(master, node, name) {
 }
 
 // Copies a 2.x media content to a file node under /_attachments and returns its new reference.
-// A file that no longer exists keeps only its name, like a response stored without files.
+// A file that is gone or unreadable keeps only its name, like a response stored without files.
 function migrateFile(draft, master, ref, stats) {
   const media = ref.id ? draft.get(ref.id) : null;
-  const attachment = media && media.attachment;
-  if (!attachment || !attachment.name) {
+  if (!media) {
     logMissingFile(ref);
     return { name: ref.name };
   }
+  if (!isReadable(media)) {
+    logUnreadableFile(ref);
+    return { name: ref.name };
+  }
+  const attachment = media.attachment;
 
   let fileId = findMigrated(master, media._id);
   if (!fileId) {
@@ -168,14 +175,18 @@ function migrateFile(draft, master, ref, stats) {
   return { id: fileId, name: attachment.name };
 }
 
-// Sets formResponse on the files of a response that do not have it yet.
-// Files keep their response and form, so the response page can list them after a purge.
+// Sets formResponse on the files of a response, so the response page can list them after
+// a purge. Returns the 2.x ids of those files: the ones that have a copy on master.
 function linkFiles(master, response) {
+  const copiedFileIds = [];
   const data = response.data || {};
   Object.keys(data).forEach(function(key) {
     if (!hasAttachments(data[key])) return;
     forceArray(data[key].attachments).forEach(function(ref) {
       const file = ref.id ? master.get(ref.id) : null;
+      if (file && file.migratedFrom) {
+        copiedFileIds.push(file.migratedFrom);
+      }
       if (file && !file.formResponse) {
         master.modify({
           key: file._id,
@@ -187,12 +198,15 @@ function linkFiles(master, response) {
       }
     });
   });
+  return copiedFileIds;
 }
 
-// Deletes a migrated 2.x response and its files from draft. Files go first, so an
-// interrupted run leaves a response that the next run still finds and removes.
-function deleteLegacy(draft, legacy) {
-  const fileIds = legacyFileIds(legacy);
+// Deletes a migrated 2.x response from draft, and those of its files that were copied.
+// Files go first, so an interrupted run leaves a response that the next run still finds.
+function deleteLegacy(draft, legacy, copiedFileIds) {
+  const fileIds = legacyFileIds(legacy).filter(function(id) {
+    return copiedFileIds.indexOf(id) >= 0;
+  });
   if (fileIds.length) {
     draft.delete(fileIds);
   }
@@ -211,14 +225,19 @@ function legacyFileIds(legacy) {
   return ids;
 }
 
-// Counts the 2.x files left on draft that no remaining response refers to:
-// uploads whose response was purged in 2.x.
-function countOrphanFiles(draft, pendingFileIds) {
+// Counts the 2.x files left on draft that no remaining response refers to: orphans,
+// whose response was purged in 2.x, and unreadable files, which could not be copied.
+function countLeftFiles(draft, pendingFileIds, stats) {
   draft.refresh();
   const hits = draft.query({ query: `_parentPath = "/content/${ATTACHMENTS_NAME}"`, count: -1 }).hits;
-  return hits.filter(function(hit) {
-    return pendingFileIds.indexOf(hit.id) < 0;
-  }).length;
+  hits.forEach(function(hit) {
+    if (pendingFileIds.indexOf(hit.id) >= 0) return;
+    if (isReadable(draft.get(hit.id))) {
+      stats.orphanFiles++;
+    } else {
+      stats.unreadableFiles++;
+    }
+  });
 }
 
 // Returns the id of the node on master that was created from the given 2.x node, or null.
@@ -248,17 +267,30 @@ function hasAttachments(value) {
   return value && typeof value === 'object' && value.attachments;
 }
 
+// True for a 2.x media content that holds its file the way 2.x wrote it:
+// one attachment object with a name.
+function isReadable(media) {
+  return !!(media && media.attachment && media.attachment.name);
+}
+
 // 2.x stored a single attachment as an object and several as an array.
 function forceArray(value) {
   return Array.isArray(value) ? value : [value];
 }
 
-// Logs the summary of a run: what was copied, skipped, failed and deleted,
-// and how many orphan files stay on draft.
+// Logs the summary of a run as one entry of several lines: what was copied, skipped,
+// failed and deleted, and how many orphan and unreadable files stay on draft.
 function logStats(stats) {
-  log.info(`${LOG_PREFIX}migrated ${stats.responses} responses, ${stats.files} files, ` +
-    `${stats.skipped} already migrated, ${stats.failed} failed, ${stats.deleted} deleted from draft, ` +
-    `${stats.orphanFiles} orphan files left on draft`);
+  log.info([
+    `${LOG_PREFIX}finished`,
+    `  responses migrated:        ${stats.responses}`,
+    `  files migrated:            ${stats.files}`,
+    `  already migrated:          ${stats.skipped}`,
+    `  failed:                    ${stats.failed}`,
+    `  deleted from draft:        ${stats.deleted}`,
+    `  orphan files on draft:     ${stats.orphanFiles}`,
+    `  unreadable files on draft: ${stats.unreadableFiles}`
+  ].join('\n'));
 }
 
 // Logs a response that could not be migrated, with its cause.
@@ -270,4 +302,10 @@ function logError(legacy, e) {
 // Logs a file reference whose 2.x media content no longer exists.
 function logMissingFile(ref) {
   log.warning(`${LOG_PREFIX}file [${ref.name}] (${ref.id}) not found, keeping its name only`);
+}
+
+// Logs a file whose 2.x media content exists but does not hold the attachment 2.x wrote.
+// It is not copied and stays on draft.
+function logUnreadableFile(ref) {
+  log.warning(`${LOG_PREFIX}file [${ref.name}] (${ref.id}) is unreadable, left on draft, keeping its name only`);
 }
