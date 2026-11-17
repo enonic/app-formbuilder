@@ -17,6 +17,7 @@ dependencies {
     include xplibs.auth
     include xplibs.repo
     include xplibs.cluster
+    include xplibs.task
     include libs.lib.thymeleaf
     include libs.lib.http.client
     include "com.enonic.lib:lib-asset:2.0.1"
