@@ -265,7 +265,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
     }
 
     mail.send({
-      from: systemEmailAddr || 'noreply@example.com',
+      from: systemEmailAddr || '<>',
       to: userEmailAddr,
       subject: subject,
       body: emailBody,
@@ -277,7 +277,7 @@ var sendEmailToRecipients = function(formData, siteConfig, formConfig, request, 
   // Send e-mail to subscribers
   if (formConfig.emailSubscribers) {
     var mailParams = {
-      from: systemEmailAddr || 'noreply@example.com',
+      from: systemEmailAddr || '<>',
       to: (Array.isArray(formConfig.emailSubscribers) ? formConfig.emailSubscribers : [formConfig.emailSubscribers]),
       subject: subject,
       body: '<code>' + formDataBeautified + '</code>',
