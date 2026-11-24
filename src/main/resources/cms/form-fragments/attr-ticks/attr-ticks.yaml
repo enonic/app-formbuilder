@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 0
-    helpText: "[Optional] Manually set each value (\"tick\") that can be selected. If you use the Boostrap theme, this will specify the options in the select instead."
+    helpText: "[Optional] Values (\"ticks\") that can be selected. With the Bootstrap theme, these become the options in the select."

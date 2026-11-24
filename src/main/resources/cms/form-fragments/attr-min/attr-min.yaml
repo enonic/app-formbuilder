@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] Add a minimum value. This will limit user input not be below the specified value."
+    helpText: "[Optional] Minimum value the user can enter."

@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] Set the pre-defined/default value. Useful to set the normal/average value the user is assumed to choose."
+    helpText: "[Optional] Default value, e.g. the normal/average value users are expected to choose."

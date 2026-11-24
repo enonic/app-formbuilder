@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] For advanced users/developers: Set a regex expression to validate input, e.g. phone numbers, email addresses, etc. Do not use this if you do are not experienced with regexes, as an incorrect regex can prevent users from completing your form."
+    helpText: "[Optional] For developers: a regex to validate input, e.g. phone numbers or e-mail addresses. An incorrect regex can prevent users from completing the form."

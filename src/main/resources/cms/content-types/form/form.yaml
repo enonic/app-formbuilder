@@ -58,7 +58,7 @@ form:
                       max: 1
                     exclude: "*"
                     include: "Bold Italic Underline | Link Unlink | SpecialChar"
-                    helpText: "Text that will override the label, for instance if you need to include a link to terms&conditions. IMPORTANT: Try to keep this short, as screen readers will have to recite the whole text to the user!"
+                    helpText: "Overrides the label, e.g. to link to terms & conditions. Keep it short: screen readers read out the whole text."
                   - type: "FormFragment"
                     name: "attr-title"
               - name: "checkboxes"
@@ -99,14 +99,14 @@ form:
         occurrences:
           min: 0
           max: 1
-        helpText: "Customize the text of the select button if you want. Defaults to \"Submit\" in the browser language."
+        helpText: "Custom text for the submit button. Defaults to \"Submit\" in the browser language."
       - type: "HtmlArea"
         name: "successMessage"
         label: "Thank you message"
         occurrences:
           min: 0
           max: 1
-        helpText: "Add an acknowledgment to show to the user when the form has been submitted."
+        helpText: "Message shown to the user after the form is submitted."
   - type: "FieldSet"
     label: "Send data by e-mail"
     items:
@@ -116,7 +116,7 @@ form:
         occurrences:
           min: 0
           max: 0
-        helpText: "Optional. E-mail addresses specified in these fields will receive all the raw form response data in an e-mail, and with uploaded files as attachments."
+        helpText: "Optional. These addresses receive the raw form response data by e-mail, with uploaded files attached."
         regexp: "^\\S+@\\S+$"
       - type: "TextLine"
         name: "emailFrom"
@@ -124,7 +124,7 @@ form:
         occurrences:
           min: 0
           max: 1
-        helpText: "Default address appearing in the e-mail's \"from\" line, example: \"Customer Service\" <noreply@example.com> …or just an e-mail: noreply@example.com."
+        helpText: "\"From\" address, e.g. \"Customer Service\" <noreply@example.com> or just noreply@example.com. If empty, the address from the site config is used."
         regexp: "^\\S+.*\\S+@\\S+$"
       - type: "TextLine"
         name: "emailSubject"
@@ -132,7 +132,7 @@ form:
         occurrences:
           min: 0
           max: 1
-        helpText: "Is the form heading by default, but a custom e-mail subject may be specified here. If neither are filled out, the display name is used."
+        helpText: "Custom e-mail subject. Defaults to the form heading, or the display name if neither is set."
       - type: "OptionSet"
         name: "receipt"
         label: "E-mail receipt back to user"
@@ -140,7 +140,7 @@ form:
         occurrences:
           min: 1
           max: 1
-        helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+        helpText: "Requires one of the Input Fields above to be of type \"e-mail\" and \"required\"."
         selection:
           min: 1
           max: 1
@@ -150,7 +150,7 @@ form:
             selected: true
           - name: "enabled"
             label: "Yes, send receipt"
-            helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+            helpText: "Requires one of the Input Fields above to be of type \"e-mail\" and \"required\"."
             items:
               - type: "HtmlArea"
                 name: "message"
@@ -158,7 +158,7 @@ form:
                 occurrences:
                   min: 1
                   max: 1
-                helpText: "For this to work, one of the Input Fields created above MUST be of type \"e-mail\" and be \"required\"."
+                helpText: "Requires one of the Input Fields above to be of type \"e-mail\" and \"required\"."
               - type: "CheckBox"
                 name: "includeFormData"
                 label: "Include summary of submitted form data"
