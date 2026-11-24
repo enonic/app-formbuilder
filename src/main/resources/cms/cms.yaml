@@ -7,10 +7,10 @@ form:
         name: "emailFrom"
         label: "E-mail FROM address"
         occurrences:
-          min: 1
+          min: 0
           max: 1
         regexp: "^\\S+@\\S+$"
-        helpText: "Default address appearing in the e-mail's \"from\" line, example: \"Customer Service\" <noreply@example.com> …or just an e-mail: noreply@example.com."
+        helpText: "Default \"from\" address, e.g. \"Customer Service\" <noreply@example.com> or just noreply@example.com. If empty, the default sender from the XP config is used."
       - type: "RadioButton"
         name: "storageLocation"
         label: "User-submitted data: Storage location and access policy"
@@ -23,7 +23,7 @@ form:
           - value: "formbuilderRepo"
             label: "Regular: Also store the data on the server, but only available in reports"
         default: "formbuilderRepo"
-        helpText: "If \"Minimal\" is selected, each form MUST have a working e-mail address to send the data to, or else data will be lost if the e-mail isn't sent. \"Regular\" enables running reports with the widget."
+        helpText: "With \"Minimal\", each form MUST have a working e-mail address, or data is lost if the e-mail isn't sent. \"Regular\" enables reports with the widget."
       - type: "RadioButton"
         name: "style"
         label: "Form style"
@@ -36,7 +36,7 @@ form:
           - value: "bootstrap"
             label: "Twitter Bootstrap"
         default: "bootstrap"
-        helpText: "Select global styling for forms generated with the formbuilder app. If \"Browser default\" is used, no extra style sheet is loaded with the page, and the browser uses whatever CSS styling has been applied to the page for that type of HTML markup. \"Twitter Bootstrap\" currently uses v.3.3.5."
+        helpText: "Global styling for forms. \"Browser default\" loads no extra style sheet, so the page's own CSS applies. \"Twitter Bootstrap\" uses v3.3.5."
   - type: "FieldSet"
     label: "reCAPTCHA v2 (anti-spam measure)"
     items:
@@ -46,14 +46,14 @@ form:
         occurrences:
           min: 0
           max: 1
-        helpText: "Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin"
+        helpText: "Both keys are required to enable reCAPTCHA. Manage your v2 keys at https://www.google.com/recaptcha/admin"
       - type: "TextLine"
         name: "recaptchaSecretKey"
         label: "reCAPTCHA v2 Secret Key"
         occurrences:
           min: 0
           max: 1
-        helpText: "Both fields are required if reCAPTCHA is to be enabled. Create and administrate your Google v2 reCAPTCHA API keys here: https://www.google.com/recaptcha/admin"
+        helpText: "Both keys are required to enable reCAPTCHA. Manage your v2 keys at https://www.google.com/recaptcha/admin"
   - type: "FieldSet"
     label: "Proxy settings"
     items:
