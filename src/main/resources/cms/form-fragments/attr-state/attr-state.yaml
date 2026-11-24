@@ -15,4 +15,4 @@ form:
       - value: "indeterminate"
         label: "Indeterminate"
     default: "unchecked"
-    helpText: "[Optional] Set the initial state of the checkbox. Default value is 'Unchecked', while it can also be set to 'Checked' or 'Indeterminate'. (An inbetween-option, to force the user to select or unselect.)"
+    helpText: "[Optional] Initial state of the checkbox. 'Indeterminate' is an in-between state that forces the user to select or unselect."

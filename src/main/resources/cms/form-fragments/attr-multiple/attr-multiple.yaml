@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "When selected, users may drag-and-drop multiple files at once into this input, or they may select several files from within the same directory shown in their browser dialog."
+    helpText: "When selected, users can drag-and-drop or select several files at once."

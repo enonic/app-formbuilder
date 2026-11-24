@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] Set the pre-defined/default value. Use this if the user normally will be selecting one specific value to make the form easier to fill in."
+    helpText: "[Optional] Default value. Useful when users normally select one specific value."

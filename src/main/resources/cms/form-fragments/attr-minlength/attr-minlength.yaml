@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] Set the maximum length of the password. Except for pincodes, this should never be below 8 characters, and preferably above 10."
+    helpText: "[Optional] Minimum length of the password. Except for pincodes, use at least 8 characters, preferably more than 10."

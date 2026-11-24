@@ -7,4 +7,4 @@ form:
     occurrences:
       min: 0
       max: 1
-    helpText: "[Optional] This text is added as the title attribute of the input. By default, this text is shown as a tooltip when hovering the mouse above the input field."
+    helpText: "[Optional] Title attribute of the input, shown as a tooltip on hover."
